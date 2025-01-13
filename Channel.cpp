@@ -69,8 +69,9 @@ std::string trimString(const std::string &input)
 
 std::map<std::string, std::string> parseJoinCommand(std::string message)
 {
+	std::string newMessage = trimString(message);
 	std::map<std::string, std::string> tokens;
-	std::vector<std::string> splitMessage = split(message, ' ');
+	std::vector<std::string> splitMessage = split(newMessage, ' ');
 
 	if (splitMessage.empty())
 	{

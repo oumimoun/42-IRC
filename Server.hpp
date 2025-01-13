@@ -28,14 +28,14 @@ class Server
 private:
     int _server_fd;
     int _port;
-    char *_password;
+     std::string _password;
     int _client_count;
     struct pollfd fds[FD_SETSIZE];
     std::map<int, Client> _clients; // Client TODO 
     std::map<std::string, Channel> _channels;
 
 public:
-    Server(int port, char *password);
+    Server(int port, std::string password);
 
     void run();
     void startServer();

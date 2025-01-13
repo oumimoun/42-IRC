@@ -2,7 +2,7 @@
 
 #include <sstream> // TODO might be removed !
 
-Server::Server(int port, char *password) : _server_fd(-1), _port(port), _password(password), _client_count(1) {}
+Server::Server(int port, std::string password) : _server_fd(-1), _port(port), _password(password), _client_count(1) {}
 
 void Server::run()
 {
@@ -54,7 +54,6 @@ void Server::startServer()
 
 void Server::handleNewClient()
 {
-    // std::cout << "New client to add" << std::endl;
     struct sockaddr_in client_addr;
     socklen_t client_len = sizeof(client_addr);
 
@@ -66,32 +65,40 @@ void Server::handleNewClient()
     fds[_client_count].fd = client_fd;
     fds[_client_count].events = POLLIN;
 
+    // TODO might be removed !
     std::ostringstream client_id;
     client_id << client_fd;
-    _clients[client_fd] = "client" + client_id.str();
-    Client newClient("client" + client_id.str());
-    _clients[client_fd] = newClient;
+    _clients[client_fd] = "client " + client_id.str();
 
     _client_count++;
     std::cout << "New client connected!" << std::endl;
 }
 
+
 void Server::handleClientRequest(int client_fd)
 {
     char buffer[1024];
     int bytes_read = recv(client_fd, buffer, 1024, 0);
-    if (bytes_read <= 0)
+
+    if (bytes_read == 0)
     {
-        if (bytes_read == 0)
-            std::cout << "Client disconnected." << std::endl;
-        else
-            throw std::runtime_error("Error receiving data from client");
-        close(client_fd);
+        std::cout << "Client disconnected." << std::endl;
         removeClient(client_fd);
         return;
     }
-
-    buffer[bytes_read] = '\0';
+    else if (bytes_read < 0)
+    {
+        if (errno == EAGAIN || errno == EWOULDBLOCK)
+            std::cout << "another connection from same terminal" << std::endl;
+        else
+        {
+            removeClient(client_fd);
+            throw std::runtime_error("Error receiving data from client");
+        }
+    }
+    else
+    {
+      buffer[bytes_read] = '\0';
     std::string message(buffer);
 
     std::cout << "Received: " << message;
@@ -114,8 +121,8 @@ void Server::handleClientRequest(int client_fd)
         channelTopic(client_fd, message);
     else if (message.substr(0, 6) == "INVITE") // TODO
         channelInvite(client_fd, message);
+    }
 }
-
 
 void Server::channelInvite(int client_fd, std::string message)
 {
@@ -404,7 +411,7 @@ void Server::ChannelJoin(int client_fd, std::string message)
 {
     std::string trimedMessage = trimString(message);
     std::cout << "Trimed message: " << trimedMessage << std::endl;
-    std::string newMessage = trimedMessage.substr(5);
+    std::string newMessage = trimedMessage.substr(4);
 	std::map<std::string, std::string> tokens = parseJoinCommand(newMessage);
     if (tokens.size() == 0)
     {
