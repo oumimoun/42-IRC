@@ -5,6 +5,11 @@ SRC =  main.cpp\
 		NonBlockingSocket.cpp\
 		Server.cpp Channel.cpp\
 		Client.cpp\
+		invite.cpp\
+		mode.cpp\
+		topic.cpp\
+		join.cpp\
+		kick.cpp\
 
 HEADERS = NonBlockingSocket.hpp\
 			Server.hpp Channel.hpp\

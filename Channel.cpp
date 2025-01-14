@@ -81,6 +81,7 @@ std::map<std::string, std::string> parseJoinCommand(std::string message)
 	if (splitMessage.size() != 2)
 	{
 		std::cout << "Invalid JOIN command space zayda" << std::endl;
+		return tokens;
 	}
 
 	std::vector<std::string> channelsNames = split(splitMessage[0], ',');
