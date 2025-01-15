@@ -18,11 +18,11 @@ Channel::Channel(const std::string &name, const std::string &key)
 		throw std::invalid_argument("Invalid channel name");
 
 	_name = name;
-	_topic = "";              // Default topic is unset
-	_key = key;               // Set the provided key (empty for no key)
-	_userLimit = 0;           // No user limit by default
-	_inviteOnly = false;      // Channel is open to all
-	_topicLock = false;       // Topic can be modified by anyone
+	_topic = "";		 // Default topic is unset
+	_key = key;			 // Set the provided key (empty for no key)
+	_userLimit = 0;		 // No user limit by default
+	_inviteOnly = false; // Channel is open to all
+	_topicLock = false;	 // Topic can be modified by anyone
 }
 
 Channel::~Channel(void) {}
@@ -41,63 +41,59 @@ std::vector<std::string> split(const std::string &str, char delimiter)
 
 std::string trimString(const std::string &input)
 {
+	std::string result;
+	size_t i = 0;
 
-    size_t start = input.find_first_not_of(" \t");
-    size_t end = input.find_last_not_of(" \t");
-    
-    if (start == std::string::npos) {
-        return "";
-    }
+	while (i < input.size() && isspace(input[i]))
+		i++;
 
-    std::string trimmed = input.substr(start, end - start + 1);
+	bool inSpace = false;
+	while (i < input.size())
+	{
+		if (isspace(input[i]))
+		{
+			if (!inSpace)
+			{
+				result += ' ';
+				inSpace = true;
+			}
+		}
+		else
+		{
+			result += input[i];
+			inSpace = false;
+		}
+		i++;
+	}
 
-    std::istringstream stream(trimmed);
-    std::string token;
-    std::ostringstream result;
+	if (!result.empty() && isspace(result.back()))
+		result.pop_back();
 
-    bool first = true;
-    while (stream >> token) {
-        if (!first) {
-            result << " ";
-        }
-        result << token;
-        first = false;
-    }
-
-    return result.str();
+	return result;
 }
 
-std::map<std::string, std::string> parseJoinCommand(std::string message)
+std::map<std::string, std::string> parseJoinCommand(std::vector<std::string> command)
 {
-	std::string newMessage = trimString(message);
 	std::map<std::string, std::string> tokens;
-	std::vector<std::string> splitMessage = split(newMessage, ' ');
-
-	if (splitMessage.empty())
+	std::vector<std::string> keys;
+	std::vector<std::string> channelsNames;
+	if (command.size() == 2 || command.size() == 3)
 	{
-		return std::cout << "Invalid JOIN command" << std::endl, tokens;
+		std::vector<std::string> channelsNames = split(command[1], ',');
+		if (command.size() == 3)
+			std::vector<std::string> keys = split(command[2], ',');
+		for (size_t i = 0; i < channelsNames.size(); i++)
+		{
+			if (i < keys.size())
+				tokens[channelsNames[i]] = keys[i];
+			else
+				tokens[channelsNames[i]] = "";
+		}
 	}
-
-	if (splitMessage.size() != 2)
-	{
-		std::cout << "Invalid JOIN command space zayda" << std::endl;
-		return tokens;
-	}
-
-	std::vector<std::string> channelsNames = split(splitMessage[0], ',');
-	std::vector<std::string> keys = split(splitMessage[1], ',');
-
-	for (size_t i = 0; i < channelsNames.size(); i++)
-	{
-		if (i < keys.size())
-			tokens[channelsNames[i]] = keys[i];
-		else
-			tokens[channelsNames[i]] = "";
-	}
-
+	else
+		std::cout << "Error: JOIN" << std::endl;
 	return tokens;
 }
-
 
 const std::string &Channel::getName(void) const
 {
@@ -114,11 +110,10 @@ const std::string &Channel::getKey(void) const
 	return _key;
 }
 
-std::map<std::string, Client>& Channel::getClients(void)
+std::map<std::string, Client> &Channel::getClients(void)
 {
 	return _clients;
 }
-
 
 bool Channel::removeClient(const std::string &nickname)
 {
@@ -135,7 +130,6 @@ bool Channel::removeClient(const std::string &nickname)
 		return true;
 	}
 }
-
 
 void Channel::setTopic(const std::string &topic)
 {
