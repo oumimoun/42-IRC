@@ -162,10 +162,9 @@ bool Channel::addClient(Client &client)
 	if (it == _clients.end())
 	{
 		_clients[client.getNickname()] = client;
+
 		if (isInvited(client.getNickname()))
-		{
 			_invited.erase(client.getNickname());
-		}
 		return true;
 	}
 	return false;
@@ -245,7 +244,10 @@ bool Channel::isOperator(const std::string &nickname) const
 void Channel::broadcastMessage(std::string message)
 {
 	for (std::map<std::string, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+	{
+		std::cout << " clients in channel: " << this->_name << " "  << it->second.getNickname() << std::endl;
 		sendReply(it->second.getClientFd(), message);
+	}
 }
 
 std::string Channel::getCreationDate(void) const

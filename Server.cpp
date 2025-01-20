@@ -166,6 +166,8 @@ void Server::handleClientRequest(int client_fd)
                 channelTopic(currClient, command);
             else if (command[0] == "INVITE")
                 channelInvite(currClient, command);
+            else if (command[0] == "PRIVMSG")
+                PrivMsgCommand(client_fd, command, message);
         }
     }
 }

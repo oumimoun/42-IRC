@@ -31,7 +31,7 @@ void Server::joinCommand(std::string channelName, std::string key, Client& currC
     }
     else
     {
-        Channel currChannel = it->second;
+        Channel &currChannel = it->second;
         if (currChannel.getInviteOnly() && !currChannel.isInvited(currClient.getNickname()))
         {
             sendReply(client_fd, ERR_INVITEONLYCHAN(currClient.getNickname(), channelName));

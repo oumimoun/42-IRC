@@ -44,6 +44,9 @@ public:
     void handleClientRequest(int client_fd);
     void removeClient(int client_fd);
     void cleanup();
+    int getClientByNickname(const std::string &nickname) const;
+    void broadcastToChannel(const std::string &channel_name, const std::string &sender, const std::string &message);
+    void sendToClient(const std::string &target_nick, const std::string &sender_nick, const std::string &message);
     
     // pp:
     void ChannelJoin(Client& currClient, std::vector<std::string> command);
@@ -57,7 +60,7 @@ public:
     void PassCommand(int client_fd, std::vector<std::string> command);
     void NickCommand(int client_fd, std::vector<std::string> command);
     void UserCommand(int client_fd, std::vector<std::string> command);
-
+    void PrivMsgCommand(int client_fd, std::vector<std::string> command, std::string &buffer);
 
 };
 
