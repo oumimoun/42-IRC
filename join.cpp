@@ -75,7 +75,6 @@ void Server::joinCommand(std::string channelName, std::string key, Client& currC
 
 void Server::ChannelJoin(Client& currClient, std::vector<std::string> command)
 {
-    std::cout << "fd in join: " << currClient.getClientFd() << std::endl;
     if (command.size() < 2)
     {
         sendReply(currClient.getClientFd(), ERR_NEEDMOREPARAMS(currClient.getNickname(), command[0]));

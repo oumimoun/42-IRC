@@ -62,6 +62,7 @@ public:
     void removeOperator(const std::string &nickname);
     void addInvited(const std::string &nickname);
     // void removeInvited(const std::string &nickname);
+    bool isClientInChannel(std::string nickname);
 
     // // Key Verification
     bool verifyKey(const std::string &key) const;

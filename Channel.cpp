@@ -2,7 +2,7 @@
 
 Channel::Channel(void) {}
 
-bool	isValidChannelName(const std::string &name)
+bool isValidChannelName(const std::string &name)
 {
 	if (name.empty() || (name[0] != '#' && name[0] != '&'))
 		return false;
@@ -14,10 +14,9 @@ bool	isValidChannelName(const std::string &name)
 std::string getCurrTime(void)
 {
 	std::stringstream convert;
-    convert << time(NULL);
-    return (convert.str());
+	convert << time(NULL);
+	return (convert.str());
 }
-
 
 Channel::Channel(const std::string &name, const std::string &key)
 {
@@ -85,7 +84,7 @@ std::map<std::string, std::string> parseJoinCommand(std::vector<std::string> com
 	if (command.size() == 2 || command.size() == 3)
 	{
 		std::vector<std::string> channelsNames = split(command[1], ',');
-		// if (command.size() == 3) // TODO 
+		// if (command.size() == 3) // TODO
 		std::vector<std::string> keys = split(command[2], ',');
 		for (size_t i = 0; i < channelsNames.size(); i++)
 		{
@@ -123,10 +122,7 @@ bool Channel::removeClient(const std::string &nickname)
 	std::map<std::string, Client>::iterator it;
 	it = _clients.find(nickname);
 	if (it == _clients.end())
-	{
-		std::cout << "Error: client " << nickname << " does not exist in channel " << _name << std::endl;
 		return false;
-	}
 	else
 	{
 		_clients.erase(it);
@@ -134,7 +130,7 @@ bool Channel::removeClient(const std::string &nickname)
 	}
 }
 
-void Channel::setTopic(const std::string &topic) // TODO 
+void Channel::setTopic(const std::string &topic) // TODO
 {
 	_topic = topic;
 }
@@ -166,13 +162,13 @@ bool Channel::addClient(Client &client)
 	if (it == _clients.end())
 	{
 		_clients[client.getNickname()] = client;
+		if (isInvited(client.getNickname()))
+		{
+			_invited.erase(client.getNickname());
+		}
 		return true;
 	}
-	else
-	{
-		std::cout << "Error: client " << client.getNickname() << " already exists in channel " << _name << std::endl;
-		return false;
-	}
+	return false;
 }
 
 bool Channel::verifyKey(const std::string &key) const
@@ -241,9 +237,9 @@ bool Channel::isOperator(const std::string &nickname) const
 {
 	std::set<std::string>::iterator it;
 	it = _operators.find(nickname);
-	if (it == _operators.end())
-		return false;
-	return true;
+	if (it != _operators.end())
+		return true;
+	return false;
 }
 
 void Channel::broadcastMessage(std::string message)
@@ -285,13 +281,24 @@ std::string Channel::getAllUsersNames(void)
 {
 	std::string result = "";
 
-	for (std::map<std::string, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) 
+	for (std::map<std::string, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
 	{
 		if (isOperator(it->first))
-            result += "@" + it->first + " ";
-        else
-            result += it->first + " ";
-    }
-    return result;
+			result += "@" + it->first + " ";
+		else
+			result += it->first + " ";
+	}
+	return result;
+}
+
+bool Channel::isClientInChannel(std::string nickname)
+{
+	std::map<std::string, Client>::iterator it_client;
+	for (it_client = _clients.begin(); it_client != _clients.end(); ++it_client)
+	{
+		if (it_client->second.getNickname() == nickname)
+			return true;
+	}
+	return false;
 }
 

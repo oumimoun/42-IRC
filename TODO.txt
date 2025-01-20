@@ -66,3 +66,5 @@ Example:
 
 MODE #linux +tkol-itko dddddj jk jk jk jk
 [ ] fill the Topic infos date and user setd it 
+
+[ ] kick remove user from operator o invited

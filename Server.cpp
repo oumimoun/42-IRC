@@ -8,6 +8,23 @@ Server::~Server()
     cleanup();
 }
 
+void Server::removeClient(int client_fd)
+{
+    close(client_fd);
+    _clients.erase(client_fd);
+
+    for (int i = 1; i < _client_count; i++)
+    {
+        if (fds[i].fd == client_fd)
+        {
+            fds[i] = fds[_client_count - 1];
+            fds[_client_count - 1].fd = -1;
+            _client_count--;
+            return;
+        }
+    }
+}
+
 void Server::cleanup()
 {
     std::cout << "Cleaning up server resources..." << std::endl;
@@ -132,7 +149,7 @@ void Server::handleClientRequest(int client_fd)
         Client currClient = _clients[client_fd];
 
         if (command[0] == "PASS")
-            PassCommand(client_fd, command);
+            PassCommand(client_fd, command); // TODO currClient here instead of client_fd
         else if (command[0] == "NICK")
             NickCommand(client_fd, command);
         else if (command[0] == "USER")
