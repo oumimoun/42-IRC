@@ -3,9 +3,7 @@
 
 void Server::joinCommand(std::string channelName, std::string key, Client& currClient)
 {
-    std::cout << "fd in join: " << currClient.getClientFd() << std::endl;
     int client_fd = currClient.getClientFd();
-    std::cout << "client_fd: " << client_fd << std::endl;
     std::map<std::string, Channel>::iterator it;
     it = _channels.find(channelName);
     if (it == _channels.end())
@@ -18,6 +16,7 @@ void Server::joinCommand(std::string channelName, std::string key, Client& currC
         Channel newChannel(channelName, key);
         newChannel.addClient(currClient);
         newChannel.addOperator(currClient.getNickname());
+
         _channels[channelName] = newChannel;
         sendReply(client_fd, RPL_NOTIFYJOIN(currClient.getNickname(), currClient.getHostName(), channelName));
         if (newChannel.getTopic() == "")

@@ -146,7 +146,7 @@ void Server::handleClientRequest(int client_fd)
         if (command.empty())
             return;
 
-        Client currClient = _clients[client_fd];
+        Client &currClient = _clients[client_fd];
 
         if (command[0] == "PASS")
             PassCommand(client_fd, command); // TODO currClient here instead of client_fd

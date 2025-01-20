@@ -20,18 +20,8 @@ void Server::channelInvite(Client& currClient, std::vector<std::string> command)
 
     Channel& currChannel = it->second;
 
-    if (!currChannel.getInviteOnly())
-    {
-        sendReply(currClient.getClientFd(), ERR_CHANOPRIVSNEEDED(currClient.getNickname(), channelName));
-        return;
-    }
-
     if (!currChannel.isOperator(currClient.getNickname()))
     {
-        // std::cout << "here\n";
-        // std::cout << "value: " << currChannel.isOperator(currClient.getNickname()) << std::endl;
-        // for (auto op : currChannel.getOperators())
-        //     std::cout << "operators : " << op << std::endl;
         sendReply(currClient.getClientFd(), ERR_CHANOPRIVSNEEDED(currClient.getNickname(), channelName));
         return;
     }

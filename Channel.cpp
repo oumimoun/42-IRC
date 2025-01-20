@@ -24,7 +24,7 @@ Channel::Channel(const std::string &name, const std::string &key)
 	_topic = "";
 	_key = key;
 	_userLimit = 0;
-	_inviteOnly = false;
+	_inviteOnly = false; // TODO
 	_topicLock = false;
 	_creationDate = getCurrTime();
 }
