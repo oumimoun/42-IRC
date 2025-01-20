@@ -2,6 +2,7 @@
 
 void Server::removeClient(int client_fd)
 {
+    close(client_fd);
     _clients.erase(client_fd);
 
     for (int i = 1; i < _client_count; i++)
@@ -16,7 +17,7 @@ void Server::removeClient(int client_fd)
     }
 }
 
-void Server::channelKick(int client_fd, std::vector<std::string> command) // TODO kick myself and delete channel
+void Server::channelKick(Client& currClient, std::vector<std::string> command) // TODO kick myself and delete channel
 {
     if (command.size() < 3)
     {
@@ -37,7 +38,6 @@ void Server::channelKick(int client_fd, std::vector<std::string> command) // TOD
     else
     {
         Channel currChannel = it->second;
-        Client currClient = _clients[client_fd];
         if (currChannel.isOperator(currClient.getNickname()) == false)
         {
             std::cout << "Error: " << currClient.getNickname() << " is not an operator in channel " << channelName << std::endl;

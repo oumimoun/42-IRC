@@ -1,6 +1,6 @@
 #include "Server.hpp"
 
-void Server::channelInvite(int client_fd, std::vector<std::string> command)
+void Server::channelInvite(Client& currClient, std::vector<std::string> command)
 {
     if (command.size() != 3)
     {
@@ -21,7 +21,6 @@ void Server::channelInvite(int client_fd, std::vector<std::string> command)
             std::cout << "Error: channel " << channelName << " is not invite only" << std::endl;
             return;
         }
-        Client currClient = _clients[client_fd];
         if (currChannel.isOperator(currClient.getNickname()) == false)
         {
             std::cout << "Error: " << currClient.getNickname() << " is not an operator in channel " << channelName << std::endl;
