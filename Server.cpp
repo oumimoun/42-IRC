@@ -1,5 +1,4 @@
 #include "Server.hpp"
-
 #include <sstream> // TODO might be removed !
 
 Server::Server(int port, std::string password) : _server_fd(-1), _port(port), _password(password), _client_count(1) {}
@@ -156,7 +155,6 @@ void Server::handleClientRequest(int client_fd)
 
 void    sendReply(int client_fd, std::string response)
 {
-    std::cout << "client_fd: >" << client_fd << " response: >" << response << std::endl;
-    if (send(client_fd, response.c_str(), response.length(), 0) <= 0)
-        std::cerr << "send() failed" << std::endl;
+    if (send(client_fd, response.c_str(), response.length(), 0) == -1)
+        std::cerr << "Error: send() failed" << std::endl;
 }

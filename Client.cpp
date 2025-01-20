@@ -20,15 +20,6 @@ const std::string &Client::getNickname(void) const
 	return _nickname;
 }
 
-// void Client::setPassword(const std::string &password)
-// {
-//     _password = password;
-// }
-
-// const std::string &Client::getPassword() const
-// {
-//     return _password;
-// }
 
 bool Client::isRegistered() const
 {
@@ -103,4 +94,9 @@ int Client::getClientFd(void) const
 void Client::setClientFd(int fd)
 {
     this->_client_fd = fd;
+}
+
+std::string Client::getPrefix() const
+{
+    return _nickname + "!" + _username + "@" + _hostname;
 }

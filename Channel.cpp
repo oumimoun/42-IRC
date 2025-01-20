@@ -294,3 +294,4 @@ std::string Channel::getAllUsersNames(void)
     }
     return result;
 }
+
