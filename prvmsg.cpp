@@ -22,7 +22,15 @@ void Server::broadcastToChannel(const std::string &channel_name, const std::stri
     std::map<std::string, Channel>::iterator channel_it = _channels.find(channel_name);
     if (channel_it != _channels.end())
     {
+
         std::map<std::string, Client> &clients_in_channel = channel_it->second.getClients();
+        
+        if(clients_in_channel.find(sender) == clients_in_channel.end())
+        {
+            std::cerr << "YOU ARE NOT IN THE Channel: " << channel_name << std::endl;
+            return;
+        }
+
         for (std::map<std::string, Client>::iterator client_it = clients_in_channel.begin(); client_it != clients_in_channel.end(); ++client_it)
         {
             if (client_it->first != sender)
@@ -35,6 +43,7 @@ void Server::broadcastToChannel(const std::string &channel_name, const std::stri
     else
     {
         std::cerr << "No such Channel: " << channel_name << std::endl;
+        return;
         // Send error reply: No such channel
     }
 }
