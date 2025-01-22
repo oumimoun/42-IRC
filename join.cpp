@@ -16,7 +16,7 @@ void Server::joinCommand(std::string channelName, std::string key, Client &currC
         Channel newChannel(channelName, key);
         newChannel.addClient(currClient);
         newChannel.addOperator(currClient.getNickname());
-        sendReply(currClient.getClientFd(), RPL_YOUREOPER(currClient.getNickname()));
+        // sendReply(currClient.getClientFd(), RPL_YOUREOPER(currClient.getNickname()));
 
         _channels[channelName] = newChannel;
         sendReply(client_fd, RPL_NOTIFYJOIN(currClient.getNickname(), currClient.getHostName(), channelName));

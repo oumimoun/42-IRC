@@ -5,6 +5,46 @@ bool isValidMode(char c)
     return (c == 'i' || c == 't' || c == 'k' || c == 'o' || c == 'l');
 }
 
+int ft_atoi(std::string parameter)
+{
+    size_t i = 0;
+    int signe = 1;
+    unsigned long long total = 0;
+
+    while (parameter[i] >= 9 && parameter[i] <= 13)
+        i++;
+    if (parameter[i] == '+' || parameter[i] == '-')
+    {
+        if (parameter[i] == '-')
+            signe = -1;
+        i++;
+    }
+    while (parameter[i] >= '0' && parameter[i] <= '9')
+    {
+        if (total > (9223372036854775807ULL - (parameter[i] - '0')) / 10)
+            return (signe == 1 ? -1 : 0);
+        total = total * 10 + (parameter[i] - '0');
+        i++;
+    }
+    return ((int)(signe * total));
+}
+
+bool valideNumber(const std::string &number)
+{
+    int start = 0;
+
+    if (number[0] == '+' || number[0] == '-')
+        start = 1;
+
+    for (size_t i = start; i < number.size(); i++)
+    {
+        if (number[i] < '0' || number[i] > '9')
+            return false;
+    }
+
+    return true;
+}
+
 std::vector<std::string> parseModes(const std::string &modes, Client &currClient)
 {
     std::vector<std::string> result;
@@ -136,17 +176,21 @@ void pluslModeParam(Channel &currChannel, const std::string &parameter, const st
             sendReply(currClient.getClientFd(), ERR_NEEDMOREPARAMS(currClient.getNickname(), "MODE"));
             return;
         }
-
-        try
-        {
-            int limit = std::stoi(parameter);
-            currChannel.setUserLimit(limit);
-            sendReply(currClient.getClientFd(), ":" + currClient.getPrefix() + " MODE " + currChannel.getName() + " +l " + parameter + "\r\n");
-        }
-        catch (const std::exception &e)
+        if (!valideNumber(parameter))
         {
             sendReply(currClient.getClientFd(), ERR_INVALIDMODEPARAM(currClient.getNickname(), currChannel.getName(), mode));
+            return;
         }
+
+        int limit = ft_atoi(parameter);
+        if (limit <= 0)
+        {
+            sendReply(currClient.getClientFd(), ERR_INVALIDMODEPARAM(currClient.getNickname(), currChannel.getName(), mode));
+            return;
+        }
+
+        currChannel.setUserLimit(limit);
+        sendReply(currClient.getClientFd(), ":" + currClient.getPrefix() + " MODE " + currChannel.getName() + " +l " + parameter + "\r\n");
     }
 }
 

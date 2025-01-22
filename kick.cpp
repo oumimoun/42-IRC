@@ -59,9 +59,12 @@ void Server::channelKick(Client &currClient, std::vector<std::string> command)
         if (currChannel.getOperators().empty())
         {
             std::map<std::string, Client>::iterator it_target = currChannel.getClients().begin();
-            Client& targetClient = it_target->second;
-            currChannel.addOperator(targetClient.getNickname());
-            sendReply(targetClient.getClientFd(), RPL_YOUREOPER(targetClient.getNickname()));
+            if (it_target != currChannel.getClients().end())
+            {
+                Client &targetClient = it_target->second;
+                currChannel.addOperator(targetClient.getNickname());
+                sendReply(targetClient.getClientFd(), RPL_YOUREOPER(targetClient.getNickname()));
+            }
         }
     }
 }
