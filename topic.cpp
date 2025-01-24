@@ -34,6 +34,12 @@ void Server::channelTopic(Client &currClient, std::vector<std::string> command)
 
     Channel &currChannel = it->second;
 
+    if (!currChannel.isClientInChannel(currClient.getNickname()))
+    {
+        sendReply(currClient.getClientFd(), ERR_USERNOTINCHANNEL(currClient.getNickname(), currClient.getNickname() , channelName));
+        return;
+    }
+
     if (command.size() == 2)
     {
         if (currChannel.getTopic().empty())

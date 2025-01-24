@@ -55,6 +55,7 @@ public:
     void channelMode(Client &currClient, std::vector<std::string> command);
     void channelKick(Client &currClient, std::vector<std::string> command);
     void channelInvite(Client &currClient, std::vector<std::string> command);
+    void kickCommand(Client& currClient, std::string channelName, std::string nickname, std::string reason);
 
     // salmane
     void PassCommand(int client_fd, std::vector<std::string> command);

@@ -99,11 +99,19 @@ void Server::handleNewClient()
         throw std::runtime_error("Failed to accept client");
 
     Client newClient(client_fd);
+    std::cout << "instance new client fd: " << newClient.getClientFd() << std::endl;
     _clients[client_fd] = newClient;
+    std::cout << "instance new client from the map: " << _clients[client_fd].getClientFd() << std::endl;
 
     NonBlockingSocket client_socket(client_fd);
     fds[_client_count].fd = client_fd;
     fds[_client_count].events = POLLIN;
+
+    // TODO might be removed !
+    // TODO might be removed !
+    std::ostringstream client_id;
+    client_id << client_fd;
+    // _clients[client_fd] = "client " + client_id.str();
 
     _client_count++;
     std::cout << "New client connected!" << std::endl;
@@ -175,4 +183,3 @@ void sendReply(int client_fd, std::string response)
     if (send(client_fd, response.c_str(), response.length(), 0) == -1)
         std::cerr << "Error: send() failed" << std::endl;
 }
-
