@@ -15,6 +15,7 @@
 #include <poll.h>
 #include <vector>
 #include <utility>
+#include <sstream>
 #include "NonBlockingSocket.hpp"
 
 #include "Client.hpp"

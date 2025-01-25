@@ -114,12 +114,10 @@ void Server::channelKick(Client &currClient, std::vector<std::string> command)
     for (std::map<std::string, std::vector<std::string > >::iterator it = tokens.begin(); it != tokens.end(); it++)
     {
         std::string channelName = it->first;
-        // std::cout << "channelName: " << channelName << std::endl;
         std::vector<std::string> users = it->second;
         for (size_t i = 0; i < users.size(); i++)
         {
             std::string nickname = users[i];
-            // std::cout << "nickname: " << users[i] << std::endl;
             kickCommand(currClient, channelName, nickname, reason);
         }
     }

@@ -1,5 +1,4 @@
 #include "Server.hpp"
-#include <sstream> // TODO might be removed !
 
 Server::Server(int port, std::string password) : _server_fd(-1), _port(port), _password(password), _client_count(1) {}
 
@@ -99,19 +98,11 @@ void Server::handleNewClient()
         throw std::runtime_error("Failed to accept client");
 
     Client newClient(client_fd);
-    std::cout << "instance new client fd: " << newClient.getClientFd() << std::endl;
     _clients[client_fd] = newClient;
-    std::cout << "instance new client from the map: " << _clients[client_fd].getClientFd() << std::endl;
 
     NonBlockingSocket client_socket(client_fd);
     fds[_client_count].fd = client_fd;
     fds[_client_count].events = POLLIN;
-
-    // TODO might be removed !
-    // TODO might be removed !
-    std::ostringstream client_id;
-    client_id << client_fd;
-    // _clients[client_fd] = "client " + client_id.str();
 
     _client_count++;
     std::cout << "New client connected!" << std::endl;
@@ -151,7 +142,7 @@ void Server::handleClientRequest(int client_fd)
         currClient.setNickFlag(0);
 
         if (command[0] == "PASS")
-            PassCommand(client_fd, command); // TODO currClient here instead of client_fd
+            PassCommand(client_fd, command);
         else if (command[0] == "NICK" && currClient.getAuthStatus() != 0x07)
             NickCommand(client_fd, command);
         else if (command[0] == "USER")
