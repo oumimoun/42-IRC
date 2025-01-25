@@ -16,6 +16,7 @@
 #include <vector>
 #include <utility>
 #include <sstream>
+#include <cerrno>
 #include "NonBlockingSocket.hpp"
 
 #include "Client.hpp"

@@ -45,35 +45,35 @@ std::vector<std::string> split(const std::string &str, char delimiter)
 
 std::string trimString(const std::string &input)
 {
-	std::string result;
-	size_t i = 0;
+    std::string result;
+    size_t i = 0;
 
-	while (i < input.size() && isspace(input[i]))
-		i++;
+    while (i < input.size() && isspace(input[i]))
+        i++;
 
-	bool inSpace = false;
-	while (i < input.size())
-	{
-		if (isspace(input[i]))
-		{
-			if (!inSpace)
-			{
-				result += ' ';
-				inSpace = true;
-			}
-		}
-		else
-		{
-			result += input[i];
-			inSpace = false;
-		}
-		i++;
-	}
+    bool inSpace = false;
+    while (i < input.size())
+    {
+        if (isspace(input[i]))
+        {
+            if (!inSpace)
+            {
+                result += ' ';
+                inSpace = true;
+            }
+        }
+        else
+        {
+            result += input[i];
+            inSpace = false;
+        }
+        i++;
+    }
 
-	if (!result.empty() && isspace(result.back()))
-		result.pop_back();
+    if (!result.empty() && isspace(result[result.size() - 1]))
+        result.erase(result.size() - 1);
 
-	return result;
+    return result;
 }
 
 std::map<std::string, std::string> parseJoinCommand(std::vector<std::string> command)
