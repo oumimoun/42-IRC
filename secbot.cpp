@@ -191,8 +191,8 @@ void forPath(int client_fd)
 
 void Server::BotCommand(int client_fd, std::vector<std::string> command)
 {
-    Client &currClient = _clients[client_fd];
-    std::cout << "SECBOT set for client " << currClient.getNickname() << std::endl;
+    // Client &currClient = _clients[client_fd];
+    // // std::cout << "SECBOT set for client " << currClient.getNickname() << std::endl;
     if (command.size() < 2)
     {
         sendReply(client_fd, 

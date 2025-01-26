@@ -54,14 +54,14 @@ void Server::kickCommand(Client& currClient, std::string channelName, std::strin
     it = _channels.find(channelName);
     if (it == _channels.end())
     {
-        sendReply(currClient.getClientFd(), ERR_NOSUCHCHANNEL(currClient.getNickname(), channelName));
+        sendReply(currClient.getClientFd(), ERR_NOSUCHCHANNEL(currClient.getHostName(), currClient.getNickname(), channelName));
         return;
     }
     Channel &currChannel = it->second;
 
     if (!currChannel.isOperator(currClient.getNickname()))
     {
-        sendReply(currClient.getClientFd(), ERR_CHANOPRIVSNEEDED(currClient.getNickname(), channelName));
+        sendReply(currClient.getClientFd(), ERR_CHANOPRIVSNEEDED(currClient.getHostName(), currClient.getNickname(),  channelName));
         return;
     }
 
@@ -73,7 +73,7 @@ void Server::kickCommand(Client& currClient, std::string channelName, std::strin
 
     if (currChannel.removeClient(nickname))
     {
-        std::string message = RPL_KICK(currClient.getNickname(), currClient.getHostName(), channelName, nickname, reason);
+        std::string message = RPL_KICK(currClient.getNickname(), currClient.getHostName(), currClient.getHostName() ,channelName, nickname, reason);
         currChannel.broadcastMessage(message);
         if (currChannel.getClients().empty())
         {
@@ -98,7 +98,7 @@ void Server::channelKick(Client &currClient, std::vector<std::string> command)
 {
     if (command.size() < 3)
     {
-        sendReply(currClient.getClientFd(), ERR_NEEDMOREPARAMS(currClient.getNickname(), command[0]));
+        sendReply(currClient.getClientFd(), ERR_NEEDMOREPARAMS(currClient.getNickname(), currClient.getHostName() ,command[0]));
         return;
     }
 
@@ -107,7 +107,7 @@ void Server::channelKick(Client &currClient, std::vector<std::string> command)
     std::map<std::string, std::vector<std::string > > tokens = parseKickCommand(command);
     if (tokens.size() == 0)
     {
-        sendReply(currClient.getClientFd(), ERR_NEEDMOREPARAMS(currClient.getNickname(), command[0]));
+        sendReply(currClient.getClientFd(), ERR_NEEDMOREPARAMS(currClient.getNickname(), currClient.getHostName() ,command[0]));
         return;
     }
 

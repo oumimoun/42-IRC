@@ -25,6 +25,7 @@
 
 class Channel;
 class Client;
+
 class Server
 {
 
@@ -32,6 +33,7 @@ private:
     int _server_fd;
     int _port;
     std::string _password;
+	std::string _hostname;
     int _client_count;
     struct pollfd fds[FD_SETSIZE];
     std::map<int, Client> _clients; // Client TODO
@@ -47,8 +49,8 @@ public:
     void removeClient(int client_fd);
     void cleanup();
     int getClientByNickname(const std::string &nickname) const;
-    void broadcastToChannel(const std::string &channel_name, const std::string &sender, const std::string &message);
-    void sendToClient(const std::string &target_nick, const std::string &sender_nick, const std::string &message);
+    void broadcastToChannel(Client &client, const std::string &channel_name, const std::string &message);
+    void sendToClient(const std::string &target_nick, Client &client, const std::string &message);
 
     // pp:
     void ChannelJoin(Client &currClient, std::vector<std::string> command);
@@ -63,7 +65,7 @@ public:
     void PassCommand(int client_fd, std::vector<std::string> command);
     void NickCommand(int client_fd, std::vector<std::string> command);
     void UserCommand(int client_fd, std::vector<std::string> command);
-    void PrivMsgCommand(int client_fd, std::vector<std::string> command, std::string &buffer);
+    void PrivMsgCommand(Client &client, std::vector<std::string> command, std::string &buffer);
     void BotCommand(int client_fd, std::vector<std::string> command);
 };
 
