@@ -1,7 +1,6 @@
 #ifndef NUMERICREPLIES
 #define NUMERICREPLIES
 
-
 #define user_forma(nickname, username, adress) (":" + nickname + "!" + username + "@localhost")
 // #define ERR(command) (": 421 !" + command + "\r\n") //
 // #define ERR_NONICKNAMEGIVEN (":localhost 431 ! :There is no nickname.\r\n")
@@ -57,7 +56,6 @@
 // #define RPL_NOTOPIC(client, channel) (": 331 " + client + " " + channel + " :No topic is set.\r\n")
 // #define RPL_TOPICCHANGE(client, client_host, channel, topic) (":" + client + "!" + client_host + " TOPIC " + channel_name + " :" + topic + " \r\n")
 
-
 #define ERR_UNKNOWNCOMMAND(hostname, nick, arg) ":" + hostname + " 421 " + nick + " " + arg + " :Unknown command\r\n"
 #define ERR_NEEDMOREPARAMS(nick, hostname, cmd) ":" + hostname + " 461 " + nick + " " + cmd + " :Not enough parameters\r\n"
 #define ERR_NOSUCHCHANNEL(hostname, nick, channel) ":" + hostname + " 403 " + nick + " " + channel + " :No such channel\r\n"
@@ -75,13 +73,13 @@
 #define RPL_NEWTOPICSETTED(nick, username, hostname, channel, topic) ":" + nick + "!~" + username + "@" + hostname + " TOPIC " + channel + " :" + topic + "\r\n";
 #define ERR_CANNOTSENDTOCHAN(hostname, nick, channel) ":" + hostname + " 404 " + nick + " " + channel + " :Cannot send to channel\r\n"
 #define ERR_NORECIPIENT(hostname, nick, command) ":" + hostname + " 411 " + nick + " :No recipient given (" + command + ")\r\n"
-#define RPL_NOTOPIC(hostname, nick, chann) ":" + hostname + " 331 " + nick + " " + chann + " :No topic is set.\r\n"\
+#define RPL_NOTOPIC(hostname, nick, chann) ":" + hostname + " 331 " + nick + " " + chann + " :No topic is set.\r\n"
 
 #define RPL_WELCOME(nick, hostname) ":" + hostname + " 001 " + nick + " :Welcome " + nick + " to the ft_irc network !\r\n"
 #define RPL_YOURHOST(nick, hostname) ":" + hostname + " 002 " + nick + " :Your host is " + hostname + " running version 1.0 !\r\n"
 #define RPL_CREATED(nick, hostname) ":" + hostname + " 003 " + nick + " :This server was created 2023-9-15 !\r\n"
-#define RPL_MYINFO(nick, hostname) ":" + hostname + " 004 " + nick + " :Host: " + hostname + ", Version: 1.0, User mode: none, Channel modes: o, t, k, i !\r\n"
 
+#define RPL_MYINFO(nick, hostname) ":" + hostname + " 004 " + nick + " :Host: " + hostname + ", Version: 1.0, User mode: none, Channel modes: o, t, k, i !\r\n"
 
 #define ERR_PASSWDMISMATCH(nick, hostname) ":" + hostname + " 464 " + nick + " :Password incorrect !\r\n"
 #define ERR_ALREADYREGISTERED(nick, hostname) ":" + hostname + " 462 " + nick + " :You may not reregister !\r\n"
@@ -106,12 +104,12 @@
 #define RPL_QUIT(nick, host, message) ":" + nick + "!" + "~" + nick + "@" + host + " QUIT : " + message + "\r\n"
 #define ERR_NOTEXTTOSEND(nick, hostname) ":" + hostname + " 412 " + nick + " :No text to send\r\n"
 #define RPL_KICK(nick, username, hostname, kicked, channel, reason) ":" + nick + "!" + "~" + username + "@" + hostname + " KICK " + channel + " " + kicked + " :" + reason + "\r\n"
-#define NICKNAME_RPLY(nickname, username, hostname, newNickName) ":" + nickname + "!~" +  + "@" + hostname + " NICK :" + newNickName  + "\r\n"
-#define RPL_UMODEIS(hostname, sender, target, modes) ":" + hostname +  " 221 " + sender + " " + target + " " + modes + "\r\n"
+#define NICKNAME_RPLY(nickname, username, hostname, newNickName) ":" + nickname + "!~" + +"@" + hostname + " NICK :" + newNickName + "\r\n"
+#define RPL_UMODEIS(hostname, sender, target, modes) ":" + hostname + " 221 " + sender + " " + target + " " + modes + "\r\n"
 #define ERR_USERSDONTMATCH(sender) sender + " :Cant change mode for other users"
 #define RPL_CREATIONTIME(hostname, nickname, channelname, creationtime) ":" + hostname + " 329 " + nickname + " " + channelname + " " + creationtime + "\r\n"
 #define RPL_MODE(nick, username, host, target, mode) ":" + nick + "!~" + username + "@" + host + " MODE " + target + " " + mode + "\r\n"
-#define RPL_NOTIFYPART(nick, host, channel, reason) (":" + nick + "!" + host + " PART " + channel +  " :" + reason + "\r\n")
+#define RPL_NOTIFYPART(nick, host, channel, reason) (":" + nick + "!" + host + " PART " + channel + " :" + reason + "\r\n")
 #define ERR_INVALIDKEY(hostname, nick, chann) ":" + hostname + " 696 " + nick + " " + chann + " k * :Invalid key mode parameter. Syntax: <key>.\r\n"
 
 #endif

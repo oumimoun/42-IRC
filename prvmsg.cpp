@@ -53,27 +53,15 @@ void Server::sendToClient(const std::string &target_nick, Client &client, const 
 
 void Server::PrivMsgCommand(Client &client, std::vector<std::string> command, std::string &buffer)
 {
-    if (!client.isRegistered())
-    {
-        sendReply(client.getClientFd(), ERR_NOTREGISTERED(client.getNickname(), client.getHostName()));
-        return;
-    }
-
-    if (command.size() < 2)
-    {
-        sendReply(client.getClientFd(), ERR_NORECIPIENT(client.getHostName(), client.getNickname(), "PRIVMSG"));
-        return;
-    }
-
     if (command.size() < 3)
     {
-        sendReply(client.getClientFd(), ERR_NOTEXTTOSEND(client.getNickname(), client.getHostName()));
+        sendReply(client.getClientFd(), ERR_NEEDMOREPARAMS(client.getNickname(), client.getHostName(), "PRIVMSG"));
         return;
     }
-
     std::string target = command[1];
-    std::string message = buffer.substr(buffer.find(':') + 1);
-
+    std::string message = command[2];
+    if (message[0] == ':')
+        message = buffer.substr(buffer.find(':') + 1);
     std::string sender_nick = client.getNickname();
     std::vector<std::string> target_list = split(target, ',');
 

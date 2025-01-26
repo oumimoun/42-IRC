@@ -1,6 +1,7 @@
 #include "Server.hpp"
 
-Server::Server(int port, std::string password) : _server_fd(-1), _port(port), _password(password), _client_count(1) {
+Server::Server(int port, std::string password) : _server_fd(-1), _port(port), _password(password), _client_count(1)
+{
     char hostBuffer[256];
     if (gethostname(hostBuffer, sizeof(hostBuffer)) == 0)
         _hostname = hostBuffer;
@@ -131,9 +132,7 @@ void Server::handleClientRequest(int client_fd)
     }
     else if (bytes_read < 0)
     {
-        if (errno == EAGAIN || errno == EWOULDBLOCK)
-            std::cerr << "another connection from same terminal" << std::endl;
-        else
+        if (errno != EAGAIN && errno != EWOULDBLOCK)
         {
             this->removeClient(client_fd);
             throw std::runtime_error("Error receiving data from client");
