@@ -122,3 +122,9 @@ const std::string &Client::getAdresseIp() const
 {
     return _ip;
 }
+
+
+std::set<std::string> Client::getFriend() const
+{
+    return _friends;
+}

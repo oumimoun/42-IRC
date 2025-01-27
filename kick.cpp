@@ -71,7 +71,7 @@ void Server::kickCommand(Client& currClient, std::string channelName, std::strin
         return;
     }
 
-    if (currChannel.removeClient(nickname))
+    if (currChannel.removeClientFromChannel(nickname))
     {
         std::string message = RPL_KICK(currClient.getNickname(), currClient.getHostName(), currClient.getHostName() ,channelName, nickname, reason);
         currChannel.broadcastMessage(message);

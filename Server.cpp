@@ -16,6 +16,18 @@ Server::~Server()
 
 void Server::removeClient(int client_fd)
 {
+    for (std::map<std::string, Channel>::iterator it_chan = _channels.begin(); it_chan != _channels.end() ; it_chan++)
+    {
+        if (it_chan->second.isClientInChannel(_clients[client_fd].getNickname()))
+        {
+            it_chan->second.removeClientFromChannel(_clients[client_fd].getNickname());
+        }
+        if (it_chan->second.getClients().empty())
+        {
+            _channels.erase(it_chan);
+        }
+    }
+    
     close(client_fd);
     _clients.erase(client_fd);
 

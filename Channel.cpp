@@ -117,7 +117,7 @@ std::map<std::string, Client> &Channel::getClients(void)
 	return _clients;
 }
 
-bool Channel::removeClient(const std::string &nickname)
+bool Channel::removeClientFromChannel(const std::string &nickname)
 {
 	std::map<std::string, Client>::iterator it = _clients.find(nickname);
 	if (it != _clients.end())

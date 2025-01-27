@@ -59,7 +59,7 @@ public:
 
     // // Client Management
     bool addClient(Client &client);
-    bool removeClient(const std::string &nickname);
+    bool removeClientFromChannel(const std::string &nickname);
     void addOperator(const std::string &nickname);
     void removeOperator(const std::string &nickname);
     void addInvited(const std::string &nickname);

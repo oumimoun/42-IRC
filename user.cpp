@@ -1,7 +1,21 @@
 #include "Server.hpp"
+#include <iomanip>
 
-void sendWelcomeMessages(int client_fd, const Client &client)
+std::string getFromattedCurrTime()
 {
+    std::time_t now = std::time(nullptr);
+
+    std::tm local_time = *std::localtime(&now);
+
+    std::ostringstream oss;
+    oss << std::put_time(&local_time, "%Y-%m-%d %H:%M:%S");
+
+    return oss.str();
+}
+
+void Server::sendWelcomeMessages(int client_fd, const Client &client)
+{
+
     const char *CYAN = "\033[1;96m";
     const char *WHITE = "\033[1;97m";
     const char *YELLOW = "\033[1;93m";
@@ -22,13 +36,12 @@ void sendWelcomeMessages(int client_fd, const Client &client)
         CYAN + "│" + YELLOW + "  Welcome to our IRC Network!        " + CYAN + "│" + RESET + "\n" +
         CYAN + "└─────────────────────────────────────┘" + RESET + "\n";
 
-    sendReply(client_fd, welcome_msg);
-
-    sendReply(client_fd, RPL_WELCOME(
-                             user_forma(client.getNickname(), client.getUsername(), client.getHostName()),
-                             client.getNickname()));
+    std::string datetime = getFromattedCurrTime();
+    sendReply(client_fd, (":IRCServer 001 " + client.getNickname() + " : Welcome to the IRC server!" + "\r\n"));
     sendReply(client_fd, RPL_YOURHOST(client.getNickname(), client.getHostName()));
-    sendReply(client_fd, RPL_CREATED(client.getNickname(), client.getHostName()));
+    sendReply(client_fd, RPL_CREATED(client.getNickname(), datetime));
+    sendReply(client_fd, RPL_MYINFO(client.getNickname(), "IRC webserv", "version 2.0", "user_modes", "chan_modes", "chan_param_modes"));
+    sendReply(client_fd, RPL_ISUPPORT(client.getNickname(), "PASS NICK USER PRIVMSG JOIN KICK INVITE TOPIC MODE (+-itkol)"));
 }
 
 void Server::UserCommand(int client_fd, std::vector<std::string> command)
@@ -40,14 +53,13 @@ void Server::UserCommand(int client_fd, std::vector<std::string> command)
     }
 
     Client &currClient = _clients[client_fd];
-    
+
     if (currClient.getAuthStatus() != 0x01 && currClient.getAuthStatus() != 0x03)
     {
         if (currClient.getAuthStatus() == 0x07)
             sendReply(client_fd, ERR_ALREADYREGISTERED(_clients[client_fd].getNickname(), _clients[client_fd].getHostName()));
         return;
     }
-
 
     std::string username = command[1];
     std::string servername = command[3];

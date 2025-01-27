@@ -52,6 +52,8 @@ public:
     void broadcastToChannel(Client &client, const std::string &channel_name, const std::string &message);
     void sendToClient(const std::string &target_nick, Client &client, const std::string &message);
 
+    void sendWelcomeMessages(int client_fd, const Client &client);
+
     // pp:
     void ChannelJoin(Client &currClient, std::vector<std::string> command);
     void joinCommand(std::string channelName, std::string key, Client &currClient);

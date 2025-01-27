@@ -17,8 +17,10 @@ SRC =  main.cpp\
 		secbot.cpp\
 
 HEADERS = NonBlockingSocket.hpp\
-			Server.hpp Channel.hpp\
+			Server.hpp\
+			Channel.hpp\
 			Client.hpp\
+			numericReplies.hpp\
 
 OBJ = $(SRC:.cpp=.o)
 

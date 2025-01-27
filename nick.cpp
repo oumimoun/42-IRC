@@ -24,6 +24,8 @@ void Server::NickCommand(int client_fd, std::vector<std::string> command)
     // // std::cout << "Nickname set to " << nickname << " for client " << client_fd << std::endl;
     currClient.setAuthStatus(0x02);
 
+    
+
     if (currClient.getAuthStatus() == 0x07 && currClient.getNickFlag() == 0 && currClient.getNickname().empty())
     {
         currClient.setNickname(nickname);

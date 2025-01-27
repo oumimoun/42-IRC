@@ -42,6 +42,8 @@ void Server::sendToClient(const std::string &target_nick, Client &client, const 
     int target_fd = getClientByNickname(target_nick);
     if (target_fd != -1)
     {
+        
+        // client.getFriend().insert(target_nick) // TODO 
         std::string formatted_msg = PRIVMSG_FORMAT(client.getNickname(), client.getUsername(), client.getHostName(), target_nick, message);
         sendReply(target_fd, formatted_msg);
     }
