@@ -17,7 +17,7 @@ private:
 	bool _registered;
 	int _authStatus;
 	int _nickFlag;
-	std::set<std::string> _friends;
+	std::set<int> _friends;
 
 public:
 	Client(void);
@@ -25,7 +25,7 @@ public:
 	Client(int fd);
 	~Client(void);
 
-	std::set<std::string> getFriend() const;
+	std::set<int> getFriend() const;
 
 	int getClientFd(void) const;
 	void setClientFd(int fd);

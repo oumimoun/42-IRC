@@ -20,9 +20,9 @@ private:
     std::string _creationDate;
     std::string _topicDate;
     std::string _topicSetter;
-    std::map<std::string, Client> _clients;
-    std::set<std::string> _operators;
-    std::set<std::string> _invited;
+    std::map<int, Client> _clients;
+    std::set<int> _operators;
+    std::set<int> _invited;
     size_t _userLimit;
     bool _inviteOnly;
     bool _topicLock;
@@ -35,14 +35,14 @@ public:
     const std::string &getName(void) const;
     const std::string &getTopic(void) const;
     const std::string &getKey(void) const;
-    std::map<std::string, Client> &getClients(void);
-    bool isOperator(const std::string &nickname) const;
+    std::map<int, Client> &getClients(void);
+    bool isOperator(int client_fd) const;
     size_t getUserCount(void) const;
     size_t getUserLimit(void) const;
     bool getInviteOnly(void) const;
     bool getTopicLock(void) const;
-    std::set<std::string> getOperators(void) const;
-    std::set<std::string> getInvited(void) const;
+    std::set<int> getOperators(void) const;
+    std::set<int> getInvited(void) const;
     std::string getCreationDate(void) const;
     std::string getTopicDdate(void) const;
     std::string getTopicSetter(void) const;
@@ -59,18 +59,20 @@ public:
 
     // // Client Management
     bool addClient(Client &client);
-    bool removeClientFromChannel(const std::string &nickname);
-    void addOperator(const std::string &nickname);
-    void removeOperator(const std::string &nickname);
-    void addInvited(const std::string &nickname);
-    // void removeInvited(const std::string &nickname);
-    bool isClientInChannel(std::string nickname);
+    bool removeClientFromChannel(int client_fd);
+    void addOperator(int);
+    void removeOperator(int client_fd);
+    void addInvited(int client_fd);
+    // void removeInvited(int client_fd);
+    bool isClientInChannel(int Client_fd);
 
     // // Key Verification
     bool verifyKey(const std::string &key) const;
-    bool isInvited(const std::string &nickname) const;
+    bool isInvited(int client_fd) const;
     void broadcastMessage(std::string message);
     std::string getAllUsersNames(void);
+
+    void oModeParam(Channel &currChannel, std::string parameter, std::string mode, Client &currClient , std::string _hostname);
 };
 
 std::map<std::string, std::string> parseJoinCommand(std::vector<std::string> message);

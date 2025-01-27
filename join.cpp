@@ -15,7 +15,7 @@ void Server::joinCommand(std::string channelName, std::string key, Client &currC
         }
         Channel newChannel(channelName, key);
         newChannel.addClient(currClient);
-        newChannel.addOperator(currClient.getNickname());
+        newChannel.addOperator(currClient.getClientFd());
 
         _channels[channelName] = newChannel;
         std::string message = RPL_JOIN(currClient.getNickname(), currClient.getUsername(), channelName, currClient.getAdresseIp());
@@ -33,7 +33,7 @@ void Server::joinCommand(std::string channelName, std::string key, Client &currC
     else
     {
         Channel &currChannel = it->second;
-        if (currChannel.getInviteOnly() && !currChannel.isInvited(currClient.getNickname()))
+        if (currChannel.getInviteOnly() && !currChannel.isInvited(currClient.getClientFd()))
         {
             sendReply(client_fd, ERR_INVITEONLYCHAN(currClient.getNickname(), channelName));
             return;
@@ -51,7 +51,7 @@ void Server::joinCommand(std::string channelName, std::string key, Client &currC
             return;
         }
 
-        if (currChannel.getClients().find(currClient.getNickname()) != currChannel.getClients().end())
+        if (currChannel.getClients().find(currClient.getClientFd()) != currChannel.getClients().end())
         {
             sendReply(client_fd, ERR_USERONCHANNEL(currClient.getHostName(), currClient.getNickname(), currClient.getNickname(), channelName));
             return;

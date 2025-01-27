@@ -75,48 +75,66 @@ std::vector<std::string> parseParametres(std::vector<std::string> command)
     return result;
 }
 
-void oModeParam(Channel &currChannel, std::string parameter, std::string mode, Client &currClient , std::string _hostname)
+void Channel::oModeParam(Channel &currChannel, std::string parameter, std::string mode, Client &currClient , std::string _hostname)
 {
     if (parameter.empty())
     {
         sendReply(currClient.getClientFd(), ERR_NEEDMOREPARAMS(currClient.getNickname(), currClient.getHostName() ,"MODE"));
         return;
     }
+
+    // TODO
+    Client *targetClient = NULL;
+    for (std::map<int, Client>::iterator it_client = _clients.begin(); it_client != _clients.end(); ++it_client)
+    {
+        if (it_client->second.getNickname() == parameter)
+        {
+            targetClient = &it_client->second;
+            break;
+        }
+    }
+    if (!targetClient)
+    {
+        sendReply(currClient.getClientFd(), ERR_NOSUCHNICK(currClient.getHostName(), currClient.getNickname(), parameter));
+        return;
+    }
+
     if (mode == "+o")
     {
-        std::map<std::string, Client>::iterator it_client;
-        it_client = currChannel.getClients().find(parameter);
+        std::map<int, Client>::iterator it_client;
+
+        it_client = currChannel.getClients().find(targetClient->getClientFd());
         if (it_client == currChannel.getClients().end())
         {
-            sendReply(currClient.getClientFd(), ERR_NOTONCHANNEL(parameter, currChannel.getName()));
+            sendReply(currClient.getClientFd(), ERR_NOTONCHANNEL(currClient.getHostName(), currChannel.getName())); // TODO
             return;
         }
-        if (currChannel.isOperator(parameter))
+        if (currChannel.isOperator(targetClient->getClientFd()))
         {
             sendReply(currClient.getClientFd(), ERR_INVALIDMODEPARAM(currClient.getNickname(), currChannel.getName(), mode));
             return;
         }
-        Client &targetClient = it_client->second;
-        currChannel.addOperator(parameter);
-        sendReply(targetClient.getClientFd(), RPL_YOUREOPER(targetClient.getNickname()));
+        Client &target = it_client->second;
+        currChannel.addOperator(target.getClientFd());
+        sendReply(target.getClientFd(), RPL_YOUREOPER(target.getNickname()));
         sendReply(currClient.getClientFd(), ":" + currClient.getPrefix() + " MODE " + currChannel.getName() + " +o " + parameter + "\r\n");
         sendReply(currClient.getClientFd(), RPL_CHANNELMODEIS(_hostname,  currClient.getNickname(), currChannel.getName(), mode));
     }
     else if (mode == "-o")
     {
-        std::map<std::string, Client>::iterator it_client;
-        it_client = currChannel.getClients().find(parameter);
+        std::map<int, Client>::iterator it_client;
+        it_client = currChannel.getClients().find(targetClient->getClientFd());
         if (it_client == currChannel.getClients().end())
         {
-            sendReply(currClient.getClientFd(), ERR_NOTONCHANNEL(parameter, currChannel.getName()));
+            sendReply(currClient.getClientFd(), ERR_NOTONCHANNEL(currClient.getHostName(), currChannel.getName()));
             return;
         }
-        if (!currChannel.isOperator(parameter))
+        if (!currChannel.isOperator(targetClient->getClientFd()))
         {
             sendReply(currClient.getClientFd(), ERR_CHANOPRIVSNEEDED(currClient.getHostName(), currClient.getNickname(),  currChannel.getName()));
             return;
         }
-        currChannel.removeOperator(parameter);
+        currChannel.removeOperator(targetClient->getClientFd());
         sendReply(currClient.getClientFd(), ":" + currClient.getPrefix() + " MODE " + currChannel.getName() + " -o " + parameter + "\r\n");
     }
 }
@@ -245,7 +263,7 @@ void Server::channelMode(Client &currClient, std::vector<std::string> command)
     {
         Channel &currChannel = it->second;
 
-        if (currChannel.isOperator(currClient.getNickname()) == false)
+        if (currChannel.isOperator(currClient.getClientFd()) == false)
         {
             sendReply(currClient.getClientFd(), ERR_CHANOPRIVSNEEDED(currClient.getHostName(), currClient.getNickname(),  channelName));
             return;
@@ -257,7 +275,7 @@ void Server::channelMode(Client &currClient, std::vector<std::string> command)
             {
                 if ((int)parameters.size() > paramCount)
                 {
-                    oModeParam(currChannel, parameters[paramCount], modes[i], currClient, _hostname); //
+                    currChannel.oModeParam(currChannel, parameters[paramCount], modes[i], currClient, _hostname); //
                     paramCount++;
                 }
                 else

@@ -34,7 +34,7 @@ void Server::channelTopic(Client &currClient, std::vector<std::string> command)
 
     Channel &currChannel = it->second;
 
-    if (!currChannel.isClientInChannel(currClient.getNickname()))
+    if (!currChannel.isClientInChannel(currClient.getClientFd()))
     {
         sendReply(currClient.getClientFd(), ERR_USERNOTINCHANNEL(currClient.getNickname(), currClient.getNickname() , channelName));
         return;
@@ -54,7 +54,7 @@ void Server::channelTopic(Client &currClient, std::vector<std::string> command)
         return;
     }
 
-    if (currChannel.getTopicLock() && !currChannel.isOperator(currClient.getNickname()))
+    if (currChannel.getTopicLock() && !currChannel.isOperator(currClient.getClientFd()))
     {
         sendReply(currClient.getClientFd(), ERR_CHANOPRIVSNEEDED(currClient.getHostName(), currClient.getNickname(),  channelName));
         return;

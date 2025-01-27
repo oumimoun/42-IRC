@@ -112,25 +112,25 @@ const std::string &Channel::getKey(void) const
 	return _key;
 }
 
-std::map<std::string, Client> &Channel::getClients(void)
+std::map<int, Client> &Channel::getClients(void)
 {
 	return _clients;
 }
 
-bool Channel::removeClientFromChannel(const std::string &nickname)
+bool Channel::removeClientFromChannel(int client_fd)
 {
-	std::map<std::string, Client>::iterator it = _clients.find(nickname);
+	std::map<int, Client>::iterator it = _clients.find(client_fd);
 	if (it != _clients.end())
 	{
 		_clients.erase(it);
-		if (_operators.find(nickname) != _operators.end())
-			_operators.erase(nickname);
+		if (_operators.find(client_fd) != _operators.end())
+			_operators.erase(client_fd);
 		return true;
 	}
 	return false;
 }
 
-void Channel::setTopic(const std::string &topic) // TODO
+void Channel::setTopic(const std::string &topic)
 {
 	_topic = topic;
 }
@@ -157,14 +157,14 @@ void Channel::setTopicLock(bool status)
 
 bool Channel::addClient(Client &client)
 {
-	std::map<std::string, Client>::iterator it;
-	it = _clients.find(client.getNickname());
+	std::map<int, Client>::iterator it;
+	it = _clients.find(client.getClientFd());
 	if (it == _clients.end())
 	{
-		_clients[client.getNickname()] = client;
+		_clients[client.getClientFd()] = client;
 
-		if (isInvited(client.getNickname()))
-			_invited.erase(client.getNickname());
+		if (isInvited(client.getClientFd()))
+			_invited.erase(client.getClientFd());
 		return true;
 	}
 	return false;
@@ -195,47 +195,49 @@ bool Channel::getTopicLock(void) const
 	return _topicLock;
 }
 
-std::set<std::string> Channel::getOperators(void) const
+std::set<int> Channel::getOperators(void) const
 {
 	return _operators;
 }
 
-std::set<std::string> Channel::getInvited(void) const
+std::set<int> Channel::getInvited(void) const
 {
 	return _invited;
 }
 
-void Channel::addOperator(const std::string &nickname)
+
+void Channel::addOperator(int client_fd)
 {
-	_operators.insert(nickname); // TODO : Check if this is correct
+	_operators.insert(client_fd); // TODO : Check if this is correct
 }
 
-void Channel::removeOperator(const std::string &nickname)
+
+void Channel::removeOperator(int client_fd)
 {
-	std::set<std::string>::iterator it;
-	it = _operators.find(nickname);
+	std::set<int>::iterator it;
+	it = _operators.find(client_fd);
 	if (it != _operators.end())
 		_operators.erase(it);
 }
 
-void Channel::addInvited(const std::string &nickname)
+void Channel::addInvited(int client_fd)
 {
-	_invited.insert(nickname);
+	_invited.insert(client_fd);
 }
 
-bool Channel::isInvited(const std::string &nickname) const
+bool Channel::isInvited(int client_fd) const
 {
-	std::set<std::string>::iterator it;
-	it = _invited.find(nickname);
+	std::set<int>::iterator it;
+	it = _invited.find(client_fd);
 	if (it == _invited.end())
 		return false;
 	return true;
 }
 
-bool Channel::isOperator(const std::string &nickname) const
+bool Channel::isOperator(int client_fd) const
 {
-	std::set<std::string>::iterator it;
-	it = _operators.find(nickname);
+	std::set<int>::iterator it;
+	it = _operators.find(client_fd);
 	if (it != _operators.end())
 		return true;
 	return false;
@@ -243,7 +245,7 @@ bool Channel::isOperator(const std::string &nickname) const
 
 void Channel::broadcastMessage(std::string message)
 {
-	for (std::map<std::string, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+	for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
 		sendReply(it->second.getClientFd(), message);
 }
 
@@ -280,22 +282,22 @@ std::string Channel::getAllUsersNames(void)
 {
 	std::string result = "";
 
-	for (std::map<std::string, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+	for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
 	{
 		if (isOperator(it->first))
-			result += "@" + it->first + " ";
+			result += "@" + it->second.getNickname() + " ";
 		else
-			result += it->first + " ";
+			result += it->second.getNickname() + " ";
 	}
 	return result;
 }
 
-bool Channel::isClientInChannel(std::string nickname)
+bool Channel::isClientInChannel(int client_fd)
 {
-	std::map<std::string, Client>::iterator it_client;
+	std::map<int, Client>::iterator it_client;
 	for (it_client = _clients.begin(); it_client != _clients.end(); ++it_client)
 	{
-		if (it_client->second.getNickname() == nickname)
+		if (it_client->second.getClientFd() == client_fd)
 			return true;
 	}
 	return false;

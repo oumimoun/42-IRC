@@ -59,19 +59,35 @@ void Server::kickCommand(Client& currClient, std::string channelName, std::strin
     }
     Channel &currChannel = it->second;
 
-    if (!currChannel.isOperator(currClient.getNickname()))
+    if (!currChannel.isOperator(currClient.getClientFd()))
     {
         sendReply(currClient.getClientFd(), ERR_CHANOPRIVSNEEDED(currClient.getHostName(), currClient.getNickname(),  channelName));
         return;
     }
 
-    if (!currChannel.isClientInChannel(nickname))
+    Client *targetClient = NULL;
+    for (std::map<int, Client>::iterator it_client = _clients.begin(); it_client != _clients.end(); ++it_client)
+    {
+        if (it_client->second.getNickname() == nickname)
+        {
+            targetClient = &it_client->second;
+            break;
+        }
+    }
+    if (!targetClient)
+    {
+        sendReply(currClient.getClientFd(), ERR_USERNOTINCHANNEL(currClient.getNickname(), nickname, channelName)); // TODO
+        // sendReply(currClient.getClientFd(), ERR_NOSUCHNICK(currClient.getHostName(), currClient.getNickname(), nickname));
+        return;
+    }
+
+    if (!currChannel.isClientInChannel(targetClient->getClientFd()))
     {
         sendReply(currClient.getClientFd(), ERR_USERNOTINCHANNEL(currClient.getNickname(), nickname, channelName));
         return;
     }
 
-    if (currChannel.removeClientFromChannel(nickname))
+    if (currChannel.removeClientFromChannel(targetClient->getClientFd()))
     {
         std::string message = RPL_KICK(currClient.getNickname(), currClient.getHostName(), currClient.getHostName() ,channelName, nickname, reason);
         currChannel.broadcastMessage(message);
@@ -82,11 +98,11 @@ void Server::kickCommand(Client& currClient, std::string channelName, std::strin
         }
         if (currChannel.getOperators().empty())
         {
-            std::map<std::string, Client>::iterator it_target = currChannel.getClients().begin();
+            std::map<int, Client>::iterator it_target = currChannel.getClients().begin();
             if (it_target != currChannel.getClients().end())
             {
                 Client &targetClient = it_target->second;
-                currChannel.addOperator(targetClient.getNickname());
+                currChannel.addOperator(targetClient.getClientFd());
                 sendReply(targetClient.getClientFd(), RPL_YOUREOPER(targetClient.getNickname()));
             }
         }
