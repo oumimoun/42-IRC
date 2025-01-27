@@ -142,7 +142,9 @@ void Server::handleClientRequest(int client_fd)
     {
         buffer[bytes_read] = '\0';
         std::string message(buffer);
-        // std::cout << "Received: " << message;
+
+        std::cout << "Received: " << message;
+
         std::vector<std::string> command = split(trimString(message), ' ');
         if (command.empty())
             return;

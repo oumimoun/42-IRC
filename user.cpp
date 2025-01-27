@@ -33,7 +33,14 @@ void sendWelcomeMessages(int client_fd, const Client &client)
 
 void Server::UserCommand(int client_fd, std::vector<std::string> command)
 {
+    if (command.size() < 5)
+    {
+        sendReply(client_fd, ERR_NEEDMOREPARAMS(_clients[client_fd].getNickname(), _clients[client_fd].getHostName(), "USER"));
+        return;
+    }
+
     Client &currClient = _clients[client_fd];
+    
     if (currClient.getAuthStatus() != 0x01 && currClient.getAuthStatus() != 0x03)
     {
         if (currClient.getAuthStatus() == 0x07)
@@ -41,11 +48,6 @@ void Server::UserCommand(int client_fd, std::vector<std::string> command)
         return;
     }
 
-    if (command.size() < 5)
-    {
-        sendReply(client_fd, ERR_NEEDMOREPARAMS(_clients[client_fd].getNickname(), _clients[client_fd].getHostName(), "USER"));
-        return;
-    }
 
     std::string username = command[1];
     std::string servername = command[3];

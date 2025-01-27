@@ -49,7 +49,7 @@ void Server::channelInvite(Client &currClient, std::vector<std::string> command)
 
     if (currChannel.isInvited(nickname)) // TODO
     {
-        sendReply(currClient.getClientFd(), "Error: " + nickname + " is already invited to channel " + channelName);
+        // sendReply(currClient.getClientFd(), "Error: " + nickname + " is already invited to channel " + channelName);
         return;
     }
 
