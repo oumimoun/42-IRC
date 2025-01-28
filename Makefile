@@ -28,6 +28,7 @@ all: $(NAME)
 
 $(NAME): $(OBJ)
 	$(CC) $(FLAGS) $(SRC) -o $(NAME)
+	@clear
 	
 %.o: %.cpp $(HEADERS)
 	$(CC) $(FLAGS) -c $< -o $@

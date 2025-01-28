@@ -8,11 +8,25 @@ void Server::NickCommand(int client_fd, std::vector<std::string> command)
         return;
     }
     Client &currClient = _clients[client_fd];
-    // if (currClient.getAuthStatus() != 0x01 && currClient.getAuthStatus() != 0x05 
-    //     && currClient.getAuthStatus() != 0x07 && currClient.getAuthStatus() != 0x03)
-    //     return;
+    if (currClient.getAuthStatus() < 0x01)
+        return;
 
     std::string nickname = command[1];
+    int i = 0;
+    bool validName = false;
+    while (nickname[i])
+    {
+        if (isalnum(nickname[i]))
+            validName = true;
+        i++;
+    }
+
+    if (!validName)
+    {
+        sendReply(client_fd, ERR_NONICKNAMEGIVEN(_clients[client_fd].getNickname(), _clients[client_fd].getHostName()));
+        return;
+    }
+
     for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
     {
         if (it->second.getNickname() == nickname)
@@ -23,8 +37,6 @@ void Server::NickCommand(int client_fd, std::vector<std::string> command)
     }
     // // std::cout << "Nickname set to " << nickname << " for client " << client_fd << std::endl;
     currClient.setAuthStatus(0x02);
-
-    
 
     if (currClient.getAuthStatus() == 0x07 && currClient.getNickFlag() == 0 && currClient.getNickname().empty())
     {

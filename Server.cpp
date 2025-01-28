@@ -16,20 +16,30 @@ Server::~Server()
 
 void Server::removeClient(int client_fd)
 {
-    for (std::map<std::string, Channel>::iterator it_chan = _channels.begin(); it_chan != _channels.end() ; it_chan++)
+    std::map<int, Client>::iterator client_it = _clients.find(client_fd);
+    if (client_it == _clients.end())
+        return;
+
+    // Remove client from all channels
+    for (std::map<std::string, Channel>::iterator it_chan = _channels.begin(); it_chan != _channels.end();)
     {
-        if (it_chan->second.isClientInChannel(_clients[client_fd].getClientFd()))
+        if (it_chan->second.isClientInChannel(client_fd))
         {
-            it_chan->second.removeClientFromChannel(_clients[client_fd].getClientFd());
+            it_chan->second.removeClientFromChannel(client_fd);
         }
+
         if (it_chan->second.getClients().empty())
         {
-            _channels.erase(it_chan);
+            it_chan = _channels.erase(it_chan);
+        }
+        else
+        {
+            ++it_chan;
         }
     }
-    
+
     close(client_fd);
-    _clients.erase(client_fd);
+    _clients.erase(client_it);
 
     for (int i = 1; i < _client_count; i++)
     {
@@ -38,10 +48,39 @@ void Server::removeClient(int client_fd)
             fds[i] = fds[_client_count - 1];
             fds[_client_count - 1].fd = -1;
             _client_count--;
-            return;
+            break;
         }
     }
 }
+
+// void Server::removeClient(int client_fd)
+// {
+//     for (std::map<std::string, Channel>::iterator it_chan = _channels.begin(); it_chan != _channels.end(); it_chan++)
+//     {
+//         if (it_chan->second.isClientInChannel(_clients[client_fd].getClientFd()))
+//         {
+//             it_chan->second.removeClientFromChannel(_clients[client_fd].getClientFd());
+//         }
+//         if (it_chan->second.getClients().empty())
+//         {
+//             _channels.erase(it_chan);
+//         }
+//     }
+
+//     close(client_fd);
+//     _clients.erase(client_fd);
+
+//     for (int i = 1; i < _client_count; i++)
+//     {
+//         if (fds[i].fd == client_fd)
+//         {
+//             fds[i] = fds[_client_count - 1];
+//             fds[_client_count - 1].fd = -1;
+//             _client_count--;
+//             return;
+//         }
+//     }
+// }
 
 void Server::cleanup()
 {
@@ -138,7 +177,7 @@ void Server::handleClientRequest(int client_fd)
 
     if (bytes_read == 0)
     {
-        // std::cout << "Client disconnected." << std::endl;
+        std::cout << "Client disconnected." << std::endl;
         this->removeClient(client_fd);
         return;
     }
@@ -152,46 +191,56 @@ void Server::handleClientRequest(int client_fd)
     }
     else
     {
-        buffer[bytes_read] = '\0';
-        std::string message(buffer);
-
-        std::cout << "Received: " << message;
-
-        std::vector<std::string> command = split(trimString(message), ' ');
-        if (command.empty())
-            return;
+        if (bytes_read >= 1024)
+            buffer[bytes_read - 1] = '\0';
+        else
+            buffer[bytes_read] = '\0';
 
         Client &currClient = _clients[client_fd];
-        currClient.setNickFlag(0);
+        currClient._buffer.append(buffer, bytes_read);
 
-        if (command[0] == "PASS")
-            PassCommand(client_fd, command);
-        else if (command[0] == "NICK" && currClient.getAuthStatus() != 0x07)
-            NickCommand(client_fd, command);
-        else if (command[0] == "USER")
-            UserCommand(client_fd, command);
-        else if (currClient.isFullyAuthenticated())
+        size_t pos;
+
+        while (((pos = currClient._buffer.find("\r\n")) != std::string::npos) || ((pos = currClient._buffer.find("\n")) != std::string::npos))
         {
-            if (command[0] == "JOIN")
-                ChannelJoin(currClient, command);
-            else if (command[0] == "MODE")
-                channelMode(currClient, command);
-            else if (command[0] == "KICK")
-                channelKick(currClient, command);
-            else if (command[0] == "TOPIC")
-                channelTopic(currClient, command);
-            else if (command[0] == "INVITE")
-                channelInvite(currClient, command);
+            if (currClient._buffer.empty())
+                break;
+            std::string command_str = currClient._buffer.substr(0, pos + 2);
+            currClient._buffer.erase(0, pos + 2);
+
+            std::vector<std::string> command = split(trimString(command_str), ' ');
+            if (command.size() < 1)
+                continue;
+            std::cout << "Received: " << command_str << std::endl;
+
+            currClient.setNickFlag(0);
+
+            if (command[0] == "PASS")
+                PassCommand(client_fd, command);
             else if (command[0] == "NICK")
                 NickCommand(client_fd, command);
-            else if (command[0] == "PRIVMSG")
-                PrivMsgCommand(currClient, command, message);
-            else if (command[0] == "SECBOT")
-                BotCommand(client_fd, command);
+            else if (command[0] == "USER")
+                UserCommand(client_fd, command);
+            else if (currClient.isFullyAuthenticated())
+            {
+                if (command[0] == "JOIN")
+                    ChannelJoin(currClient, command);
+                else if (command[0] == "MODE")
+                    channelMode(currClient, command);
+                else if (command[0] == "KICK")
+                    channelKick(currClient, command);
+                else if (command[0] == "TOPIC")
+                    channelTopic(currClient, command);
+                else if (command[0] == "INVITE")
+                    channelInvite(currClient, command);
+                else if (command[0] == "PRIVMSG")
+                    PrivMsgCommand(currClient, command, command_str);
+                else if (command[0] == "SECBOT")
+                    BotCommand(client_fd, command);
+            }
         }
     }
 }
-
 void sendReply(int client_fd, std::string response)
 {
     if (send(client_fd, response.c_str(), response.length(), 0) == -1)

@@ -80,3 +80,5 @@ JOIN #channel1,#channel2,#channel3
 
 
 [ ] O mode 
+[ ] kick pp
+must not execute any command BEFORE PASSSSSSSSS azbi

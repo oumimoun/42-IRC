@@ -20,6 +20,7 @@ private:
 	std::set<int> _friends;
 
 public:
+	std::string _buffer;
 	Client(void);
 	Client(std::string nickname);
 	Client(int fd);
