@@ -6,7 +6,7 @@ bool isValidChannelName(const std::string &name)
 {
 	if (name.empty() || (name[0] != '#' && name[0] != '&'))
 		return false;
-	if (name.find(' ') != std::string::npos || name.find(',') != std::string::npos)
+	if (name.find(',') != std::string::npos)
 		return false;
 	return name.length() <= 200;
 }

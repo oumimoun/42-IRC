@@ -103,6 +103,7 @@ std::string Client::getPrefix() const
 {
     return _nickname + "!" + _username + "@" + _hostname;
 }
+
 int Client::getNickFlag() const
 {
     return _nickFlag;

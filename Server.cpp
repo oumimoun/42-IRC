@@ -211,7 +211,7 @@ void Server::handleClientRequest(int client_fd)
             std::vector<std::string> command = split(trimString(command_str), ' ');
             if (command.size() < 1)
                 continue;
-            std::cout << "Received: " << command_str << std::endl;
+            std::cout << "Received: " << command_str;
 
             currClient.setNickFlag(0);
 

@@ -37,11 +37,11 @@ void Server::sendWelcomeMessages(int client_fd, const Client &client)
         CYAN + "└─────────────────────────────────────┘" + RESET + "\n";
 
     std::string datetime = getFromattedCurrTime();
-    sendReply(client_fd, (":IRCServer 001 " + client.getNickname() + " : Welcome to the IRC server!" + "\r\n"));
-    sendReply(client_fd, RPL_YOURHOST(client.getNickname(), client.getHostName()));
+    sendReply(client_fd, (": 001 " + client.getNickname() + " : ★━━━━━━━━━━━━━━━━━━ Welcome to IRC ━━━━━━━━━━━━━━━━━★" + "\r\n"));
+    // sendReply(client_fd, RPL_YOURHOST(client.getNickname(), client.getHostName()));
     sendReply(client_fd, RPL_CREATED(client.getNickname(), datetime));
-    sendReply(client_fd, RPL_MYINFO(client.getNickname(), "IRC webserv", "version 2.0", "user_modes", "chan_modes", "chan_param_modes"));
-    sendReply(client_fd, RPL_ISUPPORT(client.getNickname(), "PASS NICK USER PRIVMSG JOIN KICK INVITE TOPIC MODE (+-itkol)"));
+    // sendReply(client_fd, RPL_MYINFO(client.getNickname(), "IRC webserv", "version 2.0", "user_modes", "chan_modes", "chan_param_modes"));
+    // sendReply(client_fd, RPL_ISUPPORT(client.getNickname(), "PASS NICK USER PRIVMSG JOIN KICK INVITE TOPIC MODE (+-itkol)"));
 }
 
 void Server::UserCommand(int client_fd, std::vector<std::string> command)
