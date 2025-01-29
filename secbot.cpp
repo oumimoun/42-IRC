@@ -378,7 +378,7 @@ void windowsPentestPath(Client &client, int client_fd, std::string server_hostna
 void Server::BotCommand(int client_fd, std::vector<std::string> command)
 {
     Client &currClient = _clients[client_fd];
-    std::string sender = "~SECBOT" ;
+    std::string sender = "~SECBOT";
     if (command.size() < 2)
     {
         const char* messages[] = {

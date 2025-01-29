@@ -18,7 +18,6 @@ void Server::PassCommand(int client_fd, std::vector<std::string> command)
 
     if (_password == password)
     {
-        // // std::cout << "Password set for client " << currClient.getNickname() << std::endl;
         currClient.setAuthStatus(0x01);
     }
     else {

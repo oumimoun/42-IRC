@@ -20,7 +20,6 @@ void Server::removeClient(int client_fd)
     if (client_it == _clients.end())
         return;
 
-    // Remove client from all channels
     for (std::map<std::string, Channel>::iterator it_chan = _channels.begin(); it_chan != _channels.end();)
     {
         if (it_chan->second.isClientInChannel(client_fd))
@@ -29,13 +28,9 @@ void Server::removeClient(int client_fd)
         }
 
         if (it_chan->second.getClients().empty())
-        {
             it_chan = _channels.erase(it_chan);
-        }
         else
-        {
             ++it_chan;
-        }
     }
 
     close(client_fd);
@@ -53,47 +48,14 @@ void Server::removeClient(int client_fd)
     }
 }
 
-// void Server::removeClient(int client_fd)
-// {
-//     for (std::map<std::string, Channel>::iterator it_chan = _channels.begin(); it_chan != _channels.end(); it_chan++)
-//     {
-//         if (it_chan->second.isClientInChannel(_clients[client_fd].getClientFd()))
-//         {
-//             it_chan->second.removeClientFromChannel(_clients[client_fd].getClientFd());
-//         }
-//         if (it_chan->second.getClients().empty())
-//         {
-//             _channels.erase(it_chan);
-//         }
-//     }
-
-//     close(client_fd);
-//     _clients.erase(client_fd);
-
-//     for (int i = 1; i < _client_count; i++)
-//     {
-//         if (fds[i].fd == client_fd)
-//         {
-//             fds[i] = fds[_client_count - 1];
-//             fds[_client_count - 1].fd = -1;
-//             _client_count--;
-//             return;
-//         }
-//     }
-// }
 
 void Server::cleanup()
 {
-    // std::cout << "Cleaning up server resources..." << std::endl;
-
     for (int i = 1; i < _client_count; i++)
         removeClient(fds[i].fd);
 
     if (_server_fd != -1)
-    {
         close(_server_fd);
-        // std::cout << "Closed server socket." << std::endl; // TODO
-    }
 
     _clients.clear();
 }
@@ -107,7 +69,6 @@ void Server::run()
         if (poll_count < 0)
             throw std::runtime_error("Poll failed");
 
-        // std::cerr << "Debugg\n";
         if (fds[0].revents & POLLIN)
             handleNewClient();
 
@@ -140,8 +101,6 @@ void Server::startServer()
     if (listen(_server_fd, 10) < 0)
         throw std::runtime_error("Failed to listen on socket");
 
-    // std::cout << "Server is listening on port " << _port << std::endl;
-
     fds[0].fd = _server_fd;
     fds[0].events = POLLIN;
 }
@@ -166,8 +125,6 @@ void Server::handleNewClient()
     fds[_client_count].events = POLLIN;
 
     _client_count++;
-    // std::cout << "New client connected!" << std::endl;
-    // std::cout << "from: " << client_ip << std::endl;
 }
 
 void Server::handleClientRequest(int client_fd)

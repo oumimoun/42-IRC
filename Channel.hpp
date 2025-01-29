@@ -32,6 +32,7 @@ public:
     Channel(const std::string &name, const std::string &key);
     ~Channel(void);
 
+    // getter
     const std::string &getName(void) const;
     const std::string &getTopic(void) const;
     const std::string &getKey(void) const;
@@ -63,7 +64,6 @@ public:
     void addOperator(int);
     void removeOperator(int client_fd);
     void addInvited(int client_fd);
-    // void removeInvited(int client_fd);
     bool isClientInChannel(int Client_fd);
 
     // // Key Verification
@@ -71,7 +71,6 @@ public:
     bool isInvited(int client_fd) const;
     void broadcastMessage(std::string message);
     std::string getAllUsersNames(void);
-
     void oModeParam(Channel &currChannel, std::string parameter, std::string mode, Client &currClient , std::string _hostname);
 };
 

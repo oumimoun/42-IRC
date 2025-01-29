@@ -1,5 +1,4 @@
 #include "Client.hpp"
-#include <unistd.h>
 
 Client::Client(void) : _authStatus(0) {}
 

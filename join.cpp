@@ -1,5 +1,4 @@
 #include "Server.hpp"
-#include "numericReplies.hpp"
 
 void Server::joinCommand(std::string channelName, std::string key, Client &currClient)
 {

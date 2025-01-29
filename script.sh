@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SERVER="localhost"
-PORT=6667
+PORT=6669
 CHANNEL="#Room"
 CLIENT_COUNT=500
 PASS="pass"
@@ -25,7 +25,7 @@ do
     sleep 0.25
     echo "NICK $NICKNAME"
     sleep 0.25
-    echo "USER ${i} 0 * "
+    echo "USER ${i} 0 * *"
     sleep 0.25
     echo "JOIN $CHANNEL"
     sleep 500

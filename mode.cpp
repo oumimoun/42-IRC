@@ -83,7 +83,6 @@ void Channel::oModeParam(Channel &currChannel, std::string parameter, std::strin
         return;
     }
 
-    // TODO
     Client *targetClient = NULL;
     for (std::map<int, Client>::iterator it_client = _clients.begin(); it_client != _clients.end(); ++it_client)
     {
@@ -106,7 +105,7 @@ void Channel::oModeParam(Channel &currChannel, std::string parameter, std::strin
         it_client = currChannel.getClients().find(targetClient->getClientFd());
         if (it_client == currChannel.getClients().end())
         {
-            sendReply(currClient.getClientFd(), ERR_NOTONCHANNEL(currClient.getHostName(), currChannel.getName())); // TODO
+            sendReply(currClient.getClientFd(), ERR_NOTONCHANNEL(currClient.getHostName(), currChannel.getName()));
             return;
         }
         if (currChannel.isOperator(targetClient->getClientFd()))
@@ -330,11 +329,9 @@ void Server::channelMode(Client &currClient, std::vector<std::string> command)
             }
             else
             {
-                sendReply(currClient.getClientFd(), ERR_UMODEUNKNOWNFLAG(currClient.getNickname(), channelName, "")); //TODO 
+                sendReply(currClient.getClientFd(), ERR_UMODEUNKNOWNFLAG(currClient.getNickname(), channelName, modes[i]));
                 return;
             }
-            // currChannel.broadcastMessage(RPL_MODE(currClient.getNickname(), currClient.getUsername, _hostname, channelName, )); // TODO +lll-l 1 2 3 
-
         }
     }
 }

@@ -15,33 +15,18 @@ std::string getFromattedCurrTime()
 
 void Server::sendWelcomeMessages(int client_fd, const Client &client)
 {
-
-    const char *CYAN = "\033[1;96m";
-    const char *WHITE = "\033[1;97m";
-    const char *YELLOW = "\033[1;93m";
-    const char *RESET = "\033[0m";
-    const char *MAGENTA = "\033[1;95m";
-    const char *GREEN = "\033[1;32m";
-
-    std::string welcome_msg =
-        std::string(CYAN) + "★━━━━━━━━━━━━━━━━━━ Welcome to IRC ━━━━━━━━━━━━━━━━━★" + RESET + "\n\n" +
-        WHITE + "【Connection Details】" + RESET + "\n" +
-        GREEN + "✦" + RESET + " Nickname: " + YELLOW + client.getNickname() + RESET + "\n" +
-        GREEN + "✦" + RESET + " Username: " + YELLOW + client.getUsername() + RESET + "\n" +
-        GREEN + "✦" + RESET + " Hostname: " + YELLOW + client.getHostName() + RESET + "\n\n" +
-        WHITE + "【Server Information】" + RESET + "\n" +
-        GREEN + "⚡" + RESET + " Server: " + MAGENTA + "localhost" + RESET + "\n" +
-        GREEN + "⚡" + RESET + " Connected: " + MAGENTA + "now" + RESET + "\n\n" +
-        std::string(CYAN) + "┌─────────────────────────────────────┐" + RESET + "\n" +
-        CYAN + "│" + YELLOW + "  Welcome to our IRC Network!        " + CYAN + "│" + RESET + "\n" +
-        CYAN + "└─────────────────────────────────────┘" + RESET + "\n";
-
     std::string datetime = getFromattedCurrTime();
-    sendReply(client_fd, (": 001 " + client.getNickname() + " : ★━━━━━━━━━━━━━━━━━━ Welcome to IRC ━━━━━━━━━━━━━━━━━★" + "\r\n"));
-    // sendReply(client_fd, RPL_YOURHOST(client.getNickname(), client.getHostName()));
-    sendReply(client_fd, RPL_CREATED(client.getNickname(), datetime));
-    // sendReply(client_fd, RPL_MYINFO(client.getNickname(), "IRC webserv", "version 2.0", "user_modes", "chan_modes", "chan_param_modes"));
-    // sendReply(client_fd, RPL_ISUPPORT(client.getNickname(), "PASS NICK USER PRIVMSG JOIN KICK INVITE TOPIC MODE (+-itkol)"));
+    std::vector<std::string> welcome_msg;
+    welcome_msg.push_back("★━━━━━━━━━━━━━━━━━━ Welcome to IRC ━━━━━━━━━━━━━━━━━★\n\n");
+    welcome_msg.push_back("【Connection Details】\n");
+    welcome_msg.push_back("✦ Nickname: " + client.getNickname() + "\n");
+    welcome_msg.push_back("✦ Username: " + client.getUsername() + "\n");
+    welcome_msg.push_back("✦ Hostname: " + client.getHostName() + "\n\n");
+    welcome_msg.push_back("【Server Information】\n");
+    welcome_msg.push_back("⚡ Server: " + _hostname + "\n");
+    welcome_msg.push_back("⚡ Connected: " + datetime + "\n\n");
+    for (size_t i = 0; i < welcome_msg.size(); i++)
+        sendReply(client_fd, (": 001 " + client.getNickname() + " : " + welcome_msg[i] + "\r\n"));
 }
 
 void Server::UserCommand(int client_fd, std::vector<std::string> command)
@@ -81,7 +66,6 @@ void Server::UserCommand(int client_fd, std::vector<std::string> command)
     currClient.setClientFd(client_fd);
     currClient.setAuthStatus(0x04);
 
-    // std::cout << "User set to " << username << " for client " << client_fd << " and realname " << realname << std::endl;
     if (currClient.getAuthStatus() == 0x07)
     {
         sendWelcomeMessages(client_fd, currClient);

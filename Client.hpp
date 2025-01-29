@@ -2,7 +2,6 @@
 #define CLIENT_HPP
 
 #include <iostream>
-#include <set>
 
 class Client
 {
@@ -17,7 +16,6 @@ private:
 	bool _registered;
 	int _authStatus;
 	int _nickFlag;
-	std::set<int> _friends;
 
 public:
 	std::string _buffer;
@@ -25,8 +23,6 @@ public:
 	Client(std::string nickname);
 	Client(int fd);
 	~Client(void);
-
-	std::set<int> getFriend() const;
 
 	int getClientFd(void) const;
 	void setClientFd(int fd);

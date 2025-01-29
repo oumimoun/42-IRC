@@ -36,7 +36,7 @@ private:
 	std::string _hostname;
     int _client_count;
     struct pollfd fds[FD_SETSIZE];
-    std::map<int, Client> _clients; // Client TODO
+    std::map<int, Client> _clients;
     std::map<std::string, Channel> _channels;
 
 public:
