@@ -1,5 +1,18 @@
 #include "Server.hpp"
 
+void Server::broadcastNickChange(Client &client, const std::string &oldNick, const std::string &newNick)
+{
+    std::string message = ":" + oldNick + "!" + client.getUsername() + "@" + client.getHostName() + " NICK :" + newNick + "\r\n";
+
+    for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+    {
+        if (it->second.getClientFd() != client.getClientFd())
+        {
+            sendReply(it->second.getClientFd(), message);
+        }
+    }
+}
+
 void Server::NickCommand(int client_fd, std::vector<std::string> command)
 {
     if (command.size() < 2)
@@ -18,6 +31,11 @@ void Server::NickCommand(int client_fd, std::vector<std::string> command)
     {
         if (isalnum(nickname[i]))
             validName = true;
+        if (nickname[i] == ':' || nickname[i] == '#' || nickname[i] == '&' || isspace(nickname[i]))
+        {
+            validName = false;
+            break;
+        }
         i++;
     }
 
@@ -36,13 +54,18 @@ void Server::NickCommand(int client_fd, std::vector<std::string> command)
         }
     }
     // // std::cout << "Nickname set to " << nickname << " for client " << client_fd << std::endl;
-    currClient.setAuthStatus(0x02);
+    std::string oldNick = currClient.getNickname();
 
-    if (currClient.getAuthStatus() == 0x07 && currClient.getNickFlag() == 0 && currClient.getNickname().empty())
+    if (currClient.getAuthStatus() == 0x07 && currClient.getNickFlag() == 0 && oldNick.empty())
     {
-        currClient.setNickname(nickname);
         sendWelcomeMessages(client_fd, currClient);
         currClient.setNickFlag(1);
+    }
+
+    currClient.setAuthStatus(0x02);
+    if (currClient.isFullyAuthenticated())
+    {
+        broadcastNickChange(currClient, oldNick, nickname);
     }
     currClient.setNickname(nickname);
 }
