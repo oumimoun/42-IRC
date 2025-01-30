@@ -123,8 +123,3 @@ const std::string &Client::getAdresseIp() const
     return _ip;
 }
 
-
-std::set<int> Client::getFriend() const
-{
-    return _friends;
-}

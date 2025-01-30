@@ -34,66 +34,79 @@ Channel::~Channel(void) {}
 std::vector<std::string> split(const std::string &str, char delimiter)
 {
 	std::vector<std::string> tokens;
-	std::stringstream ss(str);
-	std::string token;
-	while (std::getline(ss, token, delimiter))
+	size_t start = 0;
+	size_t end = str.find(delimiter);
+	while (end != std::string::npos)
 	{
-		tokens.push_back(token);
+		tokens.push_back(str.substr(start, end - start));
+		start = end + 1;
+		end = str.find(delimiter, start);
 	}
+	tokens.push_back(str.substr(start));
 	return tokens;
 }
 
 std::string trimString(const std::string &input)
 {
-    std::string result;
-    size_t i = 0;
+	std::string result;
+	size_t i = 0;
 
-    while (i < input.size() && isspace(input[i]))
-        i++;
+	while (i < input.size() && isspace(input[i]))
+		i++;
 
-    bool inSpace = false;
-    while (i < input.size())
-    {
-        if (isspace(input[i]))
-        {
-            if (!inSpace)
-            {
-                result += ' ';
-                inSpace = true;
-            }
-        }
-        else
-        {
-            result += input[i];
-            inSpace = false;
-        }
-        i++;
-    }
+	bool inSpace = false;
+	while (i < input.size())
+	{
+		if (isspace(input[i]))
+		{
+			if (!inSpace)
+			{
+				result += ' ';
+				inSpace = true;
+			}
+		}
+		else
+		{
+			result += input[i];
+			inSpace = false;
+		}
+		i++;
+	}
 
-    if (!result.empty() && isspace(result[result.size() - 1]))
-        result.erase(result.size() - 1);
+	if (!result.empty() && isspace(result[result.size() - 1]))
+		result.erase(result.size() - 1);
 
-    return result;
+	return result;
 }
+
 
 std::map<std::string, std::string> parseJoinCommand(std::vector<std::string> command)
 {
 	std::map<std::string, std::string> tokens;
 	std::vector<std::string> keys;
 	std::vector<std::string> channelsNames;
+
 	if (command.size() == 2 || command.size() == 3)
 	{
-		std::vector<std::string> channelsNames = split(command[1], ',');
+		channelsNames = split(command[1], ',');
 		if (command.size() == 3)
-			std::vector<std::string> keys = split(command[2], ',');
+		{
+			keys = split(command[2], ',');
+		}
+
 		for (size_t i = 0; i < channelsNames.size(); i++)
 		{
-			if (i < keys.size())
+			if (i < keys.size() && !keys[i].empty())
+			{
 				tokens[channelsNames[i]] = keys[i];
+			}
 			else
+			{
 				tokens[channelsNames[i]] = "";
+			}
 		}
 	}
+
 	return tokens;
 }
 
@@ -112,22 +125,22 @@ const std::string &Channel::getKey(void) const
 	return _key;
 }
 
-std::map<int, Client> &Channel::getClients(void)
+std::vector<int> &Channel::getClients(void)
 {
-	return _clients;
+	return _channelClients;
 }
 
 bool Channel::removeClientFromChannel(int client_fd)
 {
-	std::map<int, Client>::iterator it = _clients.find(client_fd);
-	if (it != _clients.end())
-	{
-		_clients.erase(it);
-		if (_operators.find(client_fd) != _operators.end())
-			_operators.erase(client_fd);
-		return true;
-	}
-	return false;
+    for (std::vector<int>::iterator it = _channelClients.begin(); it != _channelClients.end(); ++it)
+    {
+        if (*it == client_fd)
+        {
+            _channelClients.erase(it);
+            return true;
+        }
+    }
+    return false;
 }
 
 void Channel::setTopic(const std::string &topic)
@@ -155,19 +168,9 @@ void Channel::setTopicLock(bool status)
 	_topicLock = status;
 }
 
-bool Channel::addClient(Client &client)
+void Channel::addClient(int client_fd)
 {
-	std::map<int, Client>::iterator it;
-	it = _clients.find(client.getClientFd());
-	if (it == _clients.end())
-	{
-		_clients[client.getClientFd()] = client;
-
-		if (isInvited(client.getClientFd()))
-			_invited.erase(client.getClientFd());
-		return true;
-	}
-	return false;
+	_channelClients.push_back(client_fd);
 }
 
 bool Channel::verifyKey(const std::string &key) const
@@ -175,10 +178,6 @@ bool Channel::verifyKey(const std::string &key) const
 	return _key == key;
 }
 
-size_t Channel::getUserCount(void) const
-{
-	return _clients.size();
-}
 
 size_t Channel::getUserLimit(void) const
 {
@@ -205,12 +204,10 @@ std::set<int> Channel::getInvited(void) const
 	return _invited;
 }
 
-
 void Channel::addOperator(int client_fd)
 {
-	_operators.insert(client_fd); // TODO : Check if this is correct
+	_operators.insert(client_fd);
 }
-
 
 void Channel::removeOperator(int client_fd)
 {
@@ -243,8 +240,18 @@ bool Channel::isOperator(int client_fd) const
 	return false;
 }
 
-void Channel::broadcastMessage(std::string message)
+void Channel::broadcastMessage(std::string& message, std::map<int, Client>& _clients)
 {
+	for (size_t i = 0; i < _channelClients.size(); i++)
+	{
+		int client_fd = _channelClients[i];
+
+        std::map<int, Client>::iterator it = _clients.find(client_fd);
+        if (it == _clients.end())
+            continue;
+	}
+	
+
 	for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
 		sendReply(it->second.getClientFd(), message);
 }
@@ -278,27 +285,28 @@ void Channel::setTopicSetter(std::string client)
 	_topicSetter = client;
 }
 
-std::string Channel::getAllUsersNames(void)
+std::string Channel::getAllUsersNames(std::map<int, Client>& _clients)
 {
-	std::string result = "";
+    std::string result;
 
-	for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
-	{
-		if (isOperator(it->first))
-			result += "@" + it->second.getNickname() + " ";
-		else
-			result += it->second.getNickname() + " ";
-	}
-	return result;
+    for (size_t i = 0; i < _channelClients.size(); i++)
+    {
+        int client_fd = _channelClients[i];
+
+        std::map<int, Client>::iterator it = _clients.find(client_fd);
+        if (it == _clients.end())
+            continue;
+
+        if (isOperator(client_fd))
+            result += "@" + it->second.getNickname() + " ";
+        else
+            result += it->second.getNickname() + " ";
+    }
+
+    return result;
 }
 
 bool Channel::isClientInChannel(int client_fd)
 {
-	std::map<int, Client>::iterator it_client;
-	for (it_client = _clients.begin(); it_client != _clients.end(); ++it_client)
-	{
-		if (it_client->second.getClientFd() == client_fd)
-			return true;
-	}
-	return false;
+    return std::find(_channelClients.begin(), _channelClients.end(), client_fd) != _channelClients.end();
 }

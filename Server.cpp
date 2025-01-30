@@ -170,7 +170,6 @@ void Server::handleClientRequest(int client_fd)
                 continue;
             std::cout << "Received: " << command_str;
 
-            currClient.setNickFlag(0);
 
             if (command[0] == "PASS")
                 PassCommand(client_fd, command);

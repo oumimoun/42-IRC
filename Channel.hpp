@@ -20,7 +20,7 @@ private:
     std::string _creationDate;
     std::string _topicDate;
     std::string _topicSetter;
-    std::map<int, Client> _clients;
+    std::vector<int> _channelClients;
     std::set<int> _operators;
     std::set<int> _invited;
     size_t _userLimit;
@@ -36,7 +36,7 @@ public:
     const std::string &getName(void) const;
     const std::string &getTopic(void) const;
     const std::string &getKey(void) const;
-    std::map<int, Client> &getClients(void);
+    std::vector<int> &getClients(void);
     bool isOperator(int client_fd) const;
     size_t getUserCount(void) const;
     size_t getUserLimit(void) const;
@@ -59,7 +59,7 @@ public:
     void setTopicSetter(std::string client);
 
     // // Client Management
-    bool addClient(Client &client);
+    void addClient(int client_fd);
     bool removeClientFromChannel(int client_fd);
     void addOperator(int);
     void removeOperator(int client_fd);
@@ -69,8 +69,8 @@ public:
     // // Key Verification
     bool verifyKey(const std::string &key) const;
     bool isInvited(int client_fd) const;
-    void broadcastMessage(std::string message);
-    std::string getAllUsersNames(void);
+    void broadcastMessage(std::string& message, std::map<int, Client>& _clients);
+    std::string getAllUsersNames(std::map<int, Client>& _clients);
     void oModeParam(Channel &currChannel, std::string parameter, std::string mode, Client &currClient , std::string _hostname);
 };
 

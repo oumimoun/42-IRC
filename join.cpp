@@ -13,7 +13,7 @@ void Server::joinCommand(std::string channelName, std::string key, Client &currC
             return;
         }
         Channel newChannel(channelName, key);
-        newChannel.addClient(currClient);
+        newChannel.addClient(currClient.getClientFd());
         newChannel.addOperator(currClient.getClientFd());
 
         _channels[channelName] = newChannel;
@@ -50,13 +50,13 @@ void Server::joinCommand(std::string channelName, std::string key, Client &currC
             return;
         }
 
-        if (currChannel.getClients().find(currClient.getClientFd()) != currChannel.getClients().end())
+        if (std::find(currChannel.getClients().begin(), currChannel.getClients().end(), currClient.getClientFd()) != currChannel.getClients().end())
         {
             sendReply(client_fd, ERR_USERONCHANNEL(currClient.getHostName(), currClient.getNickname(), currClient.getNickname(), channelName));
             return;
         }
 
-        currChannel.addClient(currClient);
+        currChannel.addClient(currClient.getClientFd());
         std::string message = RPL_JOIN(currClient.getNickname(), currClient.getUsername(), channelName, currClient.getAdresseIp());
         currChannel.broadcastMessage(message);
         if (currChannel.getTopic() == "")

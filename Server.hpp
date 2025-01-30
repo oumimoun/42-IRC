@@ -17,6 +17,7 @@
 #include <utility>
 #include <sstream>
 #include <cerrno>
+#include <algorithm>
 #include "NonBlockingSocket.hpp"
 
 #include "Client.hpp"
@@ -62,6 +63,7 @@ public:
     void channelKick(Client &currClient, std::vector<std::string> command);
     void channelInvite(Client &currClient, std::vector<std::string> command);
     void kickCommand(Client& currClient, std::string channelName, std::string nickname, std::string reason);
+    void oModeParam(Channel &currChannel, std::string parameter, std::string mode, Client &currClient);
 
     // salmane
     void PassCommand(int client_fd, std::vector<std::string> command);

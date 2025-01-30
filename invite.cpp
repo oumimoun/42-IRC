@@ -35,7 +35,7 @@ void Server::channelInvite(Client &currClient, std::vector<std::string> command)
             break;
         }
     }
-    if (!targetClient)
+    if (!targetClient || !targetClient->isFullyAuthenticated())
     {
         sendReply(currClient.getClientFd(), ERR_NOSUCHNICK(currClient.getHostName(), currClient.getNickname(), nickname));
         return;

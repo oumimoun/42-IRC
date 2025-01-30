@@ -14,9 +14,9 @@ std::string getReason(std::vector<std::string> command)
     return result;
 }
 
-std::map<std::string, std::vector<std::string > > parseKickCommand(std::vector<std::string> command)
+std::map<std::string, std::vector<std::string>> parseKickCommand(std::vector<std::string> command)
 {
-    std::map<std::string, std::vector<std::string > > tokens;
+    std::map<std::string, std::vector<std::string>> tokens;
 
     if (command.size() >= 3)
     {
@@ -48,7 +48,7 @@ std::map<std::string, std::vector<std::string > > parseKickCommand(std::vector<s
     return tokens;
 }
 
-void Server::kickCommand(Client& currClient, std::string channelName, std::string nickname, std::string reason)
+void Server::kickCommand(Client &currClient, std::string channelName, std::string nickname, std::string reason)
 {
     std::map<std::string, Channel>::iterator it;
     it = _channels.find(channelName);
@@ -61,7 +61,7 @@ void Server::kickCommand(Client& currClient, std::string channelName, std::strin
 
     if (!currChannel.isOperator(currClient.getClientFd()))
     {
-        sendReply(currClient.getClientFd(), ERR_CHANOPRIVSNEEDED(currClient.getHostName(), currClient.getNickname(),  channelName));
+        sendReply(currClient.getClientFd(), ERR_CHANOPRIVSNEEDED(currClient.getHostName(), currClient.getNickname(), channelName));
         return;
     }
 
@@ -74,10 +74,9 @@ void Server::kickCommand(Client& currClient, std::string channelName, std::strin
             break;
         }
     }
-    if (!targetClient)
+    if (!targetClient || !targetClient->isFullyAuthenticated())
     {
-        sendReply(currClient.getClientFd(), ERR_USERNOTINCHANNEL(currClient.getNickname(), nickname, channelName)); // TODO
-        // sendReply(currClient.getClientFd(), ERR_NOSUCHNICK(currClient.getHostName(), currClient.getNickname(), nickname));
+        sendReply(currClient.getClientFd(), ERR_NOSUCHNICK(currClient.getHostName(), currClient.getNickname(), nickname));
         return;
     }
 
@@ -89,8 +88,8 @@ void Server::kickCommand(Client& currClient, std::string channelName, std::strin
 
     if (currChannel.removeClientFromChannel(targetClient->getClientFd()))
     {
-        std::string message = RPL_KICK(currClient.getNickname(), currClient.getHostName(), currClient.getHostName() ,channelName, nickname, reason);
-        currChannel.broadcastMessage(message);
+        std::string message = RPL_KICK(currClient.getNickname(), currClient.getHostName(), currClient.getHostName(), channelName, nickname, reason);
+        currChannel.broadcastMessage(message, _clients);
         if (currChannel.getClients().empty())
         {
             _channels.erase(it);
@@ -98,36 +97,41 @@ void Server::kickCommand(Client& currClient, std::string channelName, std::strin
         }
         if (currChannel.getOperators().empty())
         {
-            std::map<int, Client>::iterator it_target = currChannel.getClients().begin();
-            if (it_target != currChannel.getClients().end())
+            std::vector<int> &clients = currChannel.getClients();
+            std::vector<int>::iterator it_target = clients.begin();
+
+            if (it_target != clients.end())
             {
-                Client &targetClient = it_target->second;
-                currChannel.addOperator(targetClient.getClientFd());
-                sendReply(targetClient.getClientFd(), RPL_YOUREOPER(targetClient.getNickname()));
+                std::map<int, Client>::iterator it_client = _clients.find(*it_target);
+                if (it_client != _clients.end())
+                {
+                    Client &targetClient = it_client->second;
+                    currChannel.addOperator(*it_target);
+                    sendReply(*it_target, RPL_YOUREOPER(targetClient.getNickname()));
+                }
             }
         }
     }
-
 }
 
 void Server::channelKick(Client &currClient, std::vector<std::string> command)
 {
     if (command.size() < 3)
     {
-        sendReply(currClient.getClientFd(), ERR_NEEDMOREPARAMS(currClient.getNickname(), currClient.getHostName() ,command[0]));
+        sendReply(currClient.getClientFd(), ERR_NEEDMOREPARAMS(currClient.getNickname(), currClient.getHostName(), command[0]));
         return;
     }
 
     std::string reason = getReason(command);
 
-    std::map<std::string, std::vector<std::string > > tokens = parseKickCommand(command);
+    std::map<std::string, std::vector<std::string>> tokens = parseKickCommand(command);
     if (tokens.size() == 0)
     {
-        sendReply(currClient.getClientFd(), ERR_NEEDMOREPARAMS(currClient.getNickname(), currClient.getHostName() ,command[0]));
+        sendReply(currClient.getClientFd(), ERR_NEEDMOREPARAMS(currClient.getNickname(), currClient.getHostName(), command[0]));
         return;
     }
 
-    for (std::map<std::string, std::vector<std::string > >::iterator it = tokens.begin(); it != tokens.end(); it++)
+    for (std::map<std::string, std::vector<std::string>>::iterator it = tokens.begin(); it != tokens.end(); it++)
     {
         std::string channelName = it->first;
         std::vector<std::string> users = it->second;
@@ -137,5 +141,4 @@ void Server::channelKick(Client &currClient, std::vector<std::string> command)
             kickCommand(currClient, channelName, nickname, reason);
         }
     }
-
 }

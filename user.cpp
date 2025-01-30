@@ -17,14 +17,14 @@ void Server::sendWelcomeMessages(int client_fd, const Client &client)
 {
     std::string datetime = getFromattedCurrTime();
     std::vector<std::string> welcome_msg;
-    welcome_msg.push_back("★━━━━━━━━━━━━━━━━━━ Welcome to IRC ━━━━━━━━━━━━━━━━━★\n\n");
-    welcome_msg.push_back("【Connection Details】\n");
-    welcome_msg.push_back("✦ Nickname: " + client.getNickname() + "\n");
-    welcome_msg.push_back("✦ Username: " + client.getUsername() + "\n");
-    welcome_msg.push_back("✦ Hostname: " + client.getHostName() + "\n\n");
-    welcome_msg.push_back("【Server Information】\n");
-    welcome_msg.push_back("⚡ Server: " + _hostname + "\n");
-    welcome_msg.push_back("⚡ Connected: " + datetime + "\n\n");
+    welcome_msg.push_back("★━━━━━━━━━━━━━━━━━━ Welcome to IRC ━━━━━━━━━━━━━━━━━★");
+    welcome_msg.push_back("【Connection Details】");
+    welcome_msg.push_back("✦ Nickname: " + client.getNickname());
+    welcome_msg.push_back("✦ Username: " + client.getUsername());
+    welcome_msg.push_back("✦ Hostname: " + client.getHostName());
+    welcome_msg.push_back("【Server Information】");
+    welcome_msg.push_back("⚡ Server: " + _hostname );
+    welcome_msg.push_back("⚡ Connected: " + datetime);
     for (size_t i = 0; i < welcome_msg.size(); i++)
         sendReply(client_fd, (": 001 " + client.getNickname() + " : " + welcome_msg[i] + "\r\n"));
 }

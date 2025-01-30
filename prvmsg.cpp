@@ -40,8 +40,9 @@ void Server::broadcastToChannel(Client &client, const std::string &channel_name,
 void Server::sendToClient(const std::string &target_nick, Client &client, const std::string &message)
 {
     int target_fd = getClientByNickname(target_nick);
-    if (target_fd != -1)
+    if (target_fd != -1 && _clients[target_fd].isFullyAuthenticated())
     {
+        
         std::string formatted_msg = PRIVMSG_FORMAT(client.getNickname(), client.getUsername(), client.getHostName(), target_nick, message);
         sendReply(target_fd, formatted_msg);
     }
