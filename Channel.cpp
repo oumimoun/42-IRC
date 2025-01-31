@@ -86,10 +86,10 @@ std::map<std::string, std::string> parseJoinCommand(std::vector<std::string> com
 	std::vector<std::string> keys;
 	std::vector<std::string> channelsNames;
 
-	if (command.size() == 2 || command.size() == 3)
+	if (command.size() >= 2)
 	{
 		channelsNames = split(command[1], ',');
-		if (command.size() == 3)
+		if (command.size() >= 3)
 		{
 			keys = split(command[2], ',');
 		}

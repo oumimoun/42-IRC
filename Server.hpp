@@ -62,7 +62,7 @@ public:
     void channelMode(Client &currClient, std::vector<std::string> command);
     void channelKick(Client &currClient, std::vector<std::string> command);
     void channelInvite(Client &currClient, std::vector<std::string> command);
-    void kickCommand(Client& currClient, std::string channelName, std::string nickname, std::string reason);
+    void kickCommand(Client& currClient, std::string &channelName, std::string &nickname, std::string &reason);
     void oModeParam(Channel &currChannel, std::string &parameter, std::string &mode, Client &currClient);
     void iModeParam(Channel &currChannel, const std::string &mode, Client &currClient);
     void pluskModeParam(Channel &currChannel, const std::string &parameter, Client &currClient);

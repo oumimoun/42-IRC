@@ -223,7 +223,7 @@ void Server::channelMode(Client &currClient, std::vector<std::string> command)
         modes = parseModes(command[2], currClient);
     if (modes.empty())
     {
-        sendReply(currClient.getClientFd(), ERR_UMODEUNKNOWNFLAG(currClient.getNickname(), channelName, ""));
+        // sendReply(currClient.getClientFd(), ERR_UMODEUNKNOWNFLAG(currClient.getNickname(), channelName, ""));
         return;
     }
     std::vector<std::string> parameters = parseParametres(command);
