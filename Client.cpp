@@ -1,10 +1,10 @@
 #include "Client.hpp"
 
-Client::Client(void) : _authStatus(0) {}
+Client::Client(void) : _authStatus(0), _nickFlag(0) {}
 
-Client::Client(std::string nickname) : _nickname(nickname), _authStatus(0) {}
+Client::Client(std::string nickname) : _nickname(nickname), _authStatus(0), _nickFlag(0) {}
 
-Client::Client(int fd)
+Client::Client(int fd) : _client_fd(fd), _authStatus(0), _nickFlag(0)
 {
     _client_fd = fd;
     _authStatus = 0;
@@ -122,4 +122,3 @@ const std::string &Client::getAdresseIp() const
 {
     return _ip;
 }
-

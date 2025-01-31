@@ -50,16 +50,16 @@ void Server::NickCommand(int client_fd, std::vector<std::string> command)
     }
 
     std::string oldNick = currClient.getNickname();
-    if (currClient.getAuthStatus() == 0x07 && currClient.getNickFlag() == 0 && oldNick.empty())
+
+    currClient.setAuthStatus(0x02);
+    currClient.setNickname(nickname);
+
+    if (currClient.getAuthStatus() == 0x07 && currClient.getNickFlag() == 0)
     {
         sendWelcomeMessages(client_fd, currClient);
         currClient.setNickFlag(1);
     }
 
-    currClient.setAuthStatus(0x02);
-    if (currClient.isFullyAuthenticated())
-    {
+    if (!oldNick.empty())
         broadcastNickChange(currClient, oldNick, nickname);
-    }
-    currClient.setNickname(nickname);
 }
