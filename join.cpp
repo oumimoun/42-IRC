@@ -26,7 +26,7 @@ void Server::joinCommand(std::string channelName, std::string key, Client &currC
             sendReply(client_fd, RPL_TOPIC(currClient.getHostName(), currClient.getNickname(), channelName, newChannel.getTopic()));
             sendReply(client_fd, RPL_TOPICWHOTIME(currClient.getNickname(), channelName, newChannel.getTopicSetter(), newChannel.getTopicDdate()));
         }
-        sendReply(client_fd, RPL_NAMREPLY(currClient.getHostName(), newChannel.getAllUsersNames() , channelName, currClient.getNickname()));
+        sendReply(client_fd, RPL_NAMREPLY(currClient.getHostName(), newChannel.getAllUsersNames(_clients) , channelName, currClient.getNickname()));
         sendReply(client_fd, RPL_ENDOFNAMES(currClient.getHostName(), currClient.getNickname(), channelName));
     }
     else
@@ -58,7 +58,7 @@ void Server::joinCommand(std::string channelName, std::string key, Client &currC
 
         currChannel.addClient(currClient.getClientFd());
         std::string message = RPL_JOIN(currClient.getNickname(), currClient.getUsername(), channelName, currClient.getAdresseIp());
-        currChannel.broadcastMessage(message);
+        currChannel.broadcastMessage(message, _clients);
         if (currChannel.getTopic() == "")
             sendReply(client_fd, RPL_NOTOPIC(currClient.getHostName(), currClient.getNickname(), channelName));
         else
@@ -66,7 +66,7 @@ void Server::joinCommand(std::string channelName, std::string key, Client &currC
             sendReply(client_fd, RPL_TOPIC(currClient.getHostName(), currClient.getNickname(), channelName, currChannel.getTopic()));
             sendReply(client_fd, RPL_TOPICWHOTIME(currClient.getNickname(), channelName, currChannel.getTopicSetter(), currChannel.getTopicDdate()));
         }
-        sendReply(client_fd, RPL_NAMREPLY(currClient.getHostName(), currChannel.getAllUsersNames(), channelName, currClient.getNickname()));
+        sendReply(client_fd, RPL_NAMREPLY(currClient.getHostName(), currChannel.getAllUsersNames(_clients), channelName, currClient.getNickname()));
         sendReply(client_fd, RPL_ENDOFNAMES(currClient.getHostName(), currClient.getNickname(), channelName));
     }
 }

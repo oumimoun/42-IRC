@@ -69,9 +69,10 @@ public:
     // // Key Verification
     bool verifyKey(const std::string &key) const;
     bool isInvited(int client_fd) const;
-    void broadcastMessage(std::string& message, std::map<int, Client>& _clients);
+    void broadcastMessage(std::string message, std::map<int, Client>& _clients);
     std::string getAllUsersNames(std::map<int, Client>& _clients);
-    void oModeParam(Channel &currChannel, std::string parameter, std::string mode, Client &currClient , std::string _hostname);
+    std::string getChannelModes();
+    // void oModeParam(Channel &currChannel, std::string parameter, std::string mode, Client &currClient , std::string _hostname);
 };
 
 std::map<std::string, std::string> parseJoinCommand(std::vector<std::string> message);

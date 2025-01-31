@@ -63,5 +63,5 @@ void Server::channelTopic(Client &currClient, std::vector<std::string> command)
     currChannel.setTopic(newTopic);
     currChannel.setTopicDate(getCurrTime());
     currChannel.setTopicSetter(currClient.getNickname());
-    currChannel.broadcastMessage(RPL_TOPIC(currClient.getHostName(), currClient.getNickname(), channelName, newTopic));
+    currChannel.broadcastMessage(RPL_TOPIC(currClient.getHostName(), currClient.getNickname(), channelName, newTopic), this->_clients);
 }

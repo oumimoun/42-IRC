@@ -13,27 +13,32 @@ int Server::getClientByNickname(const std::string &nickname) const
 void Server::broadcastToChannel(Client &client, const std::string &channel_name, const std::string &message)
 {
     std::map<std::string, Channel>::iterator channel_it = _channels.find(channel_name);
-    if (channel_it != _channels.end())
-    {
-        std::map<int, Client> &clients_in_channel = channel_it->second.getClients();
-        if (clients_in_channel.find(client.getClientFd()) == clients_in_channel.end())
-        {
-            sendReply(client.getClientFd(), ERR_CANNOTSENDTOCHAN(client.getHostName(), client.getNickname(), channel_name));
-            return;
-        }
-
-        for (std::map<int, Client>::iterator client_it = clients_in_channel.begin(); client_it != clients_in_channel.end(); ++client_it)
-        {
-            if (client_it->first != client.getClientFd())
-            {
-                std::string formatted_msg = PRIVMSG_FORMAT(client.getNickname(), client.getUsername(), client.getHostName(), client_it->second.getNickname(), message);
-                sendReply(client_it->second.getClientFd(), formatted_msg);
-            }
-        }
-    }
-    else
+    if (channel_it == _channels.end())
     {
         sendReply(client.getClientFd(), ERR_NOSUCHCHANNEL(client.getHostName(), client.getNickname(), channel_name));
+        return;
+    }
+
+    Channel &channel = channel_it->second;
+    std::vector<int> &clients_in_channel = channel.getClients();
+
+    if (std::find(clients_in_channel.begin(), clients_in_channel.end(), client.getClientFd()) == clients_in_channel.end())
+    {
+        sendReply(client.getClientFd(), ERR_CANNOTSENDTOCHAN(client.getHostName(), client.getNickname(), channel_name));
+        return;
+    }
+
+    for (std::vector<int>::iterator it = clients_in_channel.begin(); it != clients_in_channel.end(); ++it)
+    {
+        if (*it != client.getClientFd())
+        {
+            std::map<int, Client>::iterator target_client = _clients.find(*it);
+            if (target_client != _clients.end())
+            {
+                std::string formatted_msg = PRIVMSG_FORMAT(client.getNickname(), client.getUsername(), client.getHostName(), target_client->second.getNickname(), message);
+                sendReply(target_client->second.getClientFd(), formatted_msg);
+            }
+        }
     }
 }
 
@@ -42,7 +47,7 @@ void Server::sendToClient(const std::string &target_nick, Client &client, const 
     int target_fd = getClientByNickname(target_nick);
     if (target_fd != -1 && _clients[target_fd].isFullyAuthenticated())
     {
-        
+
         std::string formatted_msg = PRIVMSG_FORMAT(client.getNickname(), client.getUsername(), client.getHostName(), target_nick, message);
         sendReply(target_fd, formatted_msg);
     }

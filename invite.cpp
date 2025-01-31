@@ -53,6 +53,6 @@ void Server::channelInvite(Client &currClient, std::vector<std::string> command)
     currChannel.addInvited(targetClient->getClientFd());
 
     sendReply(currClient.getClientFd(), RPL_INVITING(currClient.getHostName(), currClient.getNickname(), nickname, channelName));
-    currChannel.broadcastMessage(RPL_INVITE(currClient.getNickname(), currClient.getUsername(), targetClient->getHostName(), channelName, nickname));
+    currChannel.broadcastMessage(RPL_INVITE(currClient.getNickname(), currClient.getUsername(), targetClient->getHostName(), channelName, nickname), _clients);
 
 }

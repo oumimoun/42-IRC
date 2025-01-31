@@ -14,9 +14,9 @@ std::string getReason(std::vector<std::string> command)
     return result;
 }
 
-std::map<std::string, std::vector<std::string>> parseKickCommand(std::vector<std::string> command)
+std::map<std::string, std::vector<std::string > > parseKickCommand(std::vector<std::string> command)
 {
-    std::map<std::string, std::vector<std::string>> tokens;
+    std::map<std::string, std::vector<std::string > > tokens;
 
     if (command.size() >= 3)
     {
@@ -124,14 +124,14 @@ void Server::channelKick(Client &currClient, std::vector<std::string> command)
 
     std::string reason = getReason(command);
 
-    std::map<std::string, std::vector<std::string>> tokens = parseKickCommand(command);
+    std::map<std::string, std::vector<std::string > > tokens = parseKickCommand(command);
     if (tokens.size() == 0)
     {
         sendReply(currClient.getClientFd(), ERR_NEEDMOREPARAMS(currClient.getNickname(), currClient.getHostName(), command[0]));
         return;
     }
 
-    for (std::map<std::string, std::vector<std::string>>::iterator it = tokens.begin(); it != tokens.end(); it++)
+    for (std::map<std::string, std::vector<std::string > >::iterator it = tokens.begin(); it != tokens.end(); it++)
     {
         std::string channelName = it->first;
         std::vector<std::string> users = it->second;

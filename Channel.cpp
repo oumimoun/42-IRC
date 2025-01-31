@@ -240,20 +240,16 @@ bool Channel::isOperator(int client_fd) const
 	return false;
 }
 
-void Channel::broadcastMessage(std::string& message, std::map<int, Client>& _clients)
+void Channel::broadcastMessage(std::string message, std::map<int, Client>& _clients)
 {
 	for (size_t i = 0; i < _channelClients.size(); i++)
 	{
 		int client_fd = _channelClients[i];
 
         std::map<int, Client>::iterator it = _clients.find(client_fd);
-        if (it == _clients.end())
-            continue;
+        if (it != _clients.end())
+			sendReply(client_fd, message);
 	}
-	
-
-	for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
-		sendReply(it->second.getClientFd(), message);
 }
 
 std::string Channel::getCreationDate(void) const
@@ -309,4 +305,27 @@ std::string Channel::getAllUsersNames(std::map<int, Client>& _clients)
 bool Channel::isClientInChannel(int client_fd)
 {
     return std::find(_channelClients.begin(), _channelClients.end(), client_fd) != _channelClients.end();
+}
+
+
+std::string Channel::getChannelModes()
+{
+    std::string modes = "+";
+
+    if (_inviteOnly)
+        modes += "i";
+    if (_topicLock)
+        modes += "t";
+    if (!_key.empty())
+        modes += "k";
+    if (_userLimit > 0)
+        modes += "l";
+
+    return modes;
+}
+
+
+size_t Channel::getUserCount(void) const
+{
+	return _channelClients.size();
 }
