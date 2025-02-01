@@ -23,6 +23,7 @@
 #include "Client.hpp"
 #include "Channel.hpp"
 #include "numericReplies.hpp"
+#define BUFFER_SIZE 512
 
 class Channel;
 class Client;
@@ -34,7 +35,7 @@ private:
     int _server_fd;
     int _port;
     std::string _password;
-	std::string _hostname;
+    std::string _hostname;
     int _client_count;
     struct pollfd fds[FD_SETSIZE];
     std::map<int, Client> _clients;
@@ -62,7 +63,7 @@ public:
     void channelMode(Client &currClient, std::vector<std::string> command);
     void channelKick(Client &currClient, std::vector<std::string> command);
     void channelInvite(Client &currClient, std::vector<std::string> command);
-    void kickCommand(Client& currClient, std::string &channelName, std::string &nickname, std::string &reason);
+    void kickCommand(Client &currClient, std::string &channelName, std::string &nickname, std::string &reason);
     void oModeParam(Channel &currChannel, std::string &parameter, std::string &mode, Client &currClient);
     void iModeParam(Channel &currChannel, const std::string &mode, Client &currClient);
     void pluskModeParam(Channel &currChannel, const std::string &parameter, Client &currClient);
@@ -84,5 +85,5 @@ public:
 };
 
 void sendReply(int client_fd, std::string response);
-void sendWelcomeMessages(int client_fd, const Client& client);
+void sendWelcomeMessages(int client_fd, const Client &client);
 #endif

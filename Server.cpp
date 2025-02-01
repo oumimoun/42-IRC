@@ -48,7 +48,6 @@ void Server::removeClient(int client_fd)
     }
 }
 
-
 void Server::cleanup()
 {
     for (int i = 1; i < _client_count; i++)
@@ -67,7 +66,10 @@ void Server::run()
     {
         int poll_count = poll(fds, _client_count, -1);
         if (poll_count < 0)
-            throw std::runtime_error("Poll failed");
+        {
+            std::cerr << "Poll failed" << std::endl;
+            continue;
+        }
 
         if (fds[0].revents & POLLIN)
             handleNewClient();
@@ -112,7 +114,10 @@ void Server::handleNewClient()
 
     int client_fd = accept(_server_fd, (struct sockaddr *)&client_addr, &client_len);
     if (client_fd < 0)
-        throw std::runtime_error("Failed to accept client");
+    {
+        std::cerr << "Failed to accept client" << std::endl;
+        return;
+    }
 
     char *client_ip = inet_ntoa(client_addr.sin_addr);
 
@@ -129,8 +134,8 @@ void Server::handleNewClient()
 
 void Server::handleClientRequest(int client_fd)
 {
-    char buffer[1024];
-    int bytes_read = recv(client_fd, buffer, 1024, 0);
+    char buffer[BUFFER_SIZE];
+    int bytes_read = recv(client_fd, buffer, BUFFER_SIZE, 0);
 
     if (bytes_read == 0)
     {
@@ -143,13 +148,14 @@ void Server::handleClientRequest(int client_fd)
         if (errno != EAGAIN && errno != EWOULDBLOCK)
         {
             this->removeClient(client_fd);
-            throw std::runtime_error("Error receiving data from client");
+            std::cerr << "Error receiving data from client" << std::endl;
+            return;
         }
     }
     else
     {
-        if (bytes_read >= 1024)
-            buffer[bytes_read - 1] = '\0';
+        if (bytes_read >= BUFFER_SIZE)
+            buffer[BUFFER_SIZE - 1] = '\0';
         else
             buffer[bytes_read] = '\0';
 
@@ -169,7 +175,6 @@ void Server::handleClientRequest(int client_fd)
             if (command.size() < 1)
                 continue;
             std::cout << "Received: " << command_str;
-
 
             if (command[0] == "PASS")
                 PassCommand(client_fd, command);
