@@ -45,6 +45,7 @@ public:
     ~Server();
     void run();
     void startServer();
+    void launchBOT();
     void handleNewClient();
     void handleClientRequest(int client_fd);
     void removeClient(int client_fd);

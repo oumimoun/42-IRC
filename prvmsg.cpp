@@ -76,7 +76,15 @@ void Server::PrivMsgCommand(Client &client, std::vector<std::string> command, st
     for (size_t i = 0; i < target_list.size(); ++i)
     {
         std::string target = target_list[i];
-        if (target[0] == '#' || target[0] == '&')
+        if (target == "~SECBOT")
+        {
+            std::vector<std::string> bots_msg;
+            bots_msg.push_back("SECBOT");
+            bots_msg.push_back(message);
+            BotCommand(client.getClientFd(), bots_msg);
+        }
+
+        else if (target[0] == '#' || target[0] == '&')
         {
             std::map<std::string, Channel>::iterator channel_it = _channels.find(target);
             if (channel_it == _channels.end())

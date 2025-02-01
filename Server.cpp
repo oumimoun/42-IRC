@@ -63,6 +63,8 @@ void Server::cleanup()
 void Server::run()
 {
     startServer();
+    // bool bot_started = false;
+    launchBOT();
     while (true)
     {
         int poll_count = poll(fds, _client_count, -1);
@@ -84,6 +86,7 @@ void Server::startServer()
 {
     struct sockaddr_in server_addr;
     _server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    std::cerr << "Server's fd :" << _server_fd << std::endl;
     if (_server_fd < 0)
         throw std::runtime_error("Failed to open socket");
 
@@ -125,6 +128,45 @@ void Server::handleNewClient()
     fds[_client_count].events = POLLIN;
 
     _client_count++;
+}
+
+void Server::launchBOT()
+{
+    int bot_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (bot_fd < 0)
+    {
+        std::cerr << "Failed to create bot socket" << std::endl;
+        return;
+    }
+
+    struct sockaddr_in server_addr;
+    memset(&server_addr, 0, sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_addr.s_addr = INADDR_ANY;
+    server_addr.sin_port = htons(_port);
+
+    if (connect(bot_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
+    {
+        std::cerr << "Failed to connect bot to server" << std::endl;
+        close(bot_fd);
+        return;
+    }
+
+    Client botClient(bot_fd);
+    botClient.setNickname("~SECBOT");
+    botClient.setUsername("SECBOT");
+    botClient.setServername(_hostname);
+    botClient.setRealname("SECBOT");
+    botClient.setRegistered(true);
+    botClient.setAuthStatus(0x07);
+
+    _clients[bot_fd] = botClient;
+
+    fds[_client_count].fd = bot_fd;
+    fds[_client_count].events = POLLIN;
+    _client_count++;
+
+    std::cerr << "Bot connected to server with fd: " << bot_fd << std::endl;
 }
 
 void Server::handleClientRequest(int client_fd)
