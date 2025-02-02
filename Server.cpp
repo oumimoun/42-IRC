@@ -48,7 +48,6 @@ void Server::removeClient(int client_fd)
     }
 }
 
-
 void Server::cleanup()
 {
     for (int i = 1; i < _client_count; i++)
@@ -63,13 +62,15 @@ void Server::cleanup()
 void Server::run()
 {
     startServer();
-    // bool bot_started = false;
-    launchBOT();
+
     while (true)
     {
         int poll_count = poll(fds, _client_count, -1);
         if (poll_count < 0)
-            throw std::runtime_error("Poll failed");
+        {
+            std::cerr << "Poll failed" << std::endl;
+            continue;
+        }
 
         if (fds[0].revents & POLLIN)
             handleNewClient();
@@ -106,6 +107,7 @@ void Server::startServer()
 
     fds[0].fd = _server_fd;
     fds[0].events = POLLIN;
+    launchBOT(server_addr);
 }
 
 void Server::handleNewClient()
@@ -115,7 +117,11 @@ void Server::handleNewClient()
 
     int client_fd = accept(_server_fd, (struct sockaddr *)&client_addr, &client_len);
     if (client_fd < 0)
-        throw std::runtime_error("Failed to accept client");
+    {
+        std::cerr << "Failed to accept client" << std::endl;
+        return;
+    }
+    NonBlockingSocket client_socket(client_fd);
 
     char *client_ip = inet_ntoa(client_addr.sin_addr);
 
@@ -123,27 +129,21 @@ void Server::handleNewClient()
     _clients[client_fd] = newClient;
     newClient.setAdresseIp(client_ip);
 
-    NonBlockingSocket client_socket(client_fd);
     fds[_client_count].fd = client_fd;
     fds[_client_count].events = POLLIN;
 
     _client_count++;
 }
 
-void Server::launchBOT()
+void Server::launchBOT(struct sockaddr_in &server_addr)
 {
     int bot_fd = socket(AF_INET, SOCK_STREAM, 0);
+
     if (bot_fd < 0)
     {
         std::cerr << "Failed to create bot socket" << std::endl;
         return;
     }
-
-    struct sockaddr_in server_addr;
-    memset(&server_addr, 0, sizeof(server_addr));
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_addr.s_addr = INADDR_ANY;
-    server_addr.sin_port = htons(_port);
 
     if (connect(bot_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
     {
@@ -152,10 +152,12 @@ void Server::launchBOT()
         return;
     }
 
+    NonBlockingSocket bot_socket(bot_fd);
     Client botClient(bot_fd);
     botClient.setNickname("~SECBOT");
     botClient.setUsername("SECBOT");
-    botClient.setServername(_hostname);
+    botClient.setServername("SECBOT");
+    botClient.setAdresseIp(_hostname);
     botClient.setRealname("SECBOT");
     botClient.setRegistered(true);
     botClient.setAuthStatus(0x07);
@@ -171,8 +173,8 @@ void Server::launchBOT()
 
 void Server::handleClientRequest(int client_fd)
 {
-    char buffer[1024];
-    int bytes_read = recv(client_fd, buffer, 1024, 0);
+    char buffer[BUFFER_SIZE];
+    int bytes_read = recv(client_fd, buffer, BUFFER_SIZE, 0);
 
     if (bytes_read == 0)
     {
@@ -185,13 +187,14 @@ void Server::handleClientRequest(int client_fd)
         if (errno != EAGAIN && errno != EWOULDBLOCK)
         {
             this->removeClient(client_fd);
-            throw std::runtime_error("Error receiving data from client");
+            std::cerr << "Error receiving data from client" << std::endl;
+            return;
         }
     }
     else
     {
-        if (bytes_read >= 1024)
-            buffer[bytes_read - 1] = '\0';
+        if (bytes_read >= BUFFER_SIZE)
+            buffer[BUFFER_SIZE - 1] = '\0';
         else
             buffer[bytes_read] = '\0';
 
@@ -211,7 +214,6 @@ void Server::handleClientRequest(int client_fd)
             if (command.size() < 1)
                 continue;
             std::cout << "Received: " << command_str;
-
 
             if (command[0] == "PASS")
                 PassCommand(client_fd, command);
