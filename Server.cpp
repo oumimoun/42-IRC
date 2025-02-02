@@ -25,6 +25,8 @@ void Server::removeClient(int client_fd)
         if (it_chan->second.isClientInChannel(client_fd))
         {
             it_chan->second.removeClientFromChannel(client_fd);
+            std::string message = RPL_KICK(client_it->second.getNickname(), client_it->second.getHostName(), client_it->second.getHostName(), client_it->second.getNickname(), it_chan->second.getName(), "");
+            it_chan->second.broadcastMessage(message, _clients);
         }
 
         if (it_chan->second.getClients().empty())
@@ -87,7 +89,7 @@ void Server::startServer()
 {
     struct sockaddr_in server_addr;
     _server_fd = socket(AF_INET, SOCK_STREAM, 0);
-    std::cerr << "Server's fd :" << _server_fd << std::endl;
+    // std::cerr << "Server's fd :" << _server_fd << std::endl;
     if (_server_fd < 0)
         throw std::runtime_error("Failed to open socket");
 
@@ -168,7 +170,7 @@ void Server::launchBOT(struct sockaddr_in &server_addr)
     fds[_client_count].events = POLLIN;
     _client_count++;
 
-    std::cerr << "Bot connected to server with fd: " << bot_fd << std::endl;
+    // std::cerr << "Bot connected to server with fd: " << bot_fd << std::endl;
 }
 
 void Server::handleClientRequest(int client_fd)

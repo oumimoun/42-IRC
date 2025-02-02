@@ -48,7 +48,7 @@ public:
     std::string getTopicDdate(void) const;
     std::string getTopicSetter(void) const;
 
-    // // Setters
+    // Setters
     void setTopic(const std::string &topic);
     void setKey(const std::string &key);
     void setUserLimit(size_t limit);
@@ -58,7 +58,7 @@ public:
     void setTopicDate(std::string date);
     void setTopicSetter(std::string client);
 
-    // // Client Management
+    // Client Management
     void addClient(int client_fd);
     bool removeClientFromChannel(int client_fd);
     void addOperator(int);
@@ -66,19 +66,18 @@ public:
     void addInvited(int client_fd);
     bool isClientInChannel(int Client_fd);
 
-    // // Key Verification
+    // Key Verification
     bool verifyKey(const std::string &key) const;
     bool isInvited(int client_fd) const;
     void broadcastMessage(std::string message, std::map<int, Client>& _clients);
     std::string getAllUsersNames(std::map<int, Client>& _clients);
     std::string getChannelModes();
-    // void oModeParam(Channel &currChannel, std::string parameter, std::string mode, Client &currClient , std::string _hostname);
+
 };
 
 std::map<std::string, std::string> parseJoinCommand(std::vector<std::string> message);
 std::vector<std::string> split(const std::string &str, char delimiter);
 std::string trimString(const std::string &input);
-
 std::string getCurrTime(void);
 
 #endif

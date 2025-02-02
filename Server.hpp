@@ -86,5 +86,6 @@ public:
 };
 
 void sendReply(int client_fd, std::string response);
-void sendWelcomeMessages(int client_fd, const Client &client);
+// void sendWelcomeMessages(int client_fd, const Client &client);
+
 #endif

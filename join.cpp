@@ -8,10 +8,7 @@ void Server::joinCommand(std::string channelName, std::string key, Client &currC
     if (it == _channels.end())
     {
         if (!isValidChannelName(channelName))
-        {
-            // sendReply(client_fd, ERR_NOSUCHCHANNEL(currClient.getNickname(), channelName));
             return;
-        }
         Channel newChannel(channelName, key);
         newChannel.addClient(currClient.getClientFd());
         newChannel.addOperator(currClient.getClientFd());

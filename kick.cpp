@@ -88,12 +88,10 @@ void Server::kickCommand(Client &currClient, std::string &channelName, std::stri
         return;
     }
 
-    if (!currChannel.removeClientFromChannel(targetClient->getClientFd())) // TODO
-    {
+    if (!currChannel.removeClientFromChannel(targetClient->getClientFd()))
         return;
-    }
 
-    std::string message = RPL_KICK(currClient.getNickname(), currClient.getHostName(), currClient.getHostName(), nickname, channelName, reason); // TODO 
+    std::string message = RPL_KICK(currClient.getNickname(), currClient.getHostName(), currClient.getHostName(), nickname, channelName, reason);
     currChannel.broadcastMessage(message, _clients);
 
     if (currChannel.getClients().empty())

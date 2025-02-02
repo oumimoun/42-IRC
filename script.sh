@@ -2,8 +2,8 @@
 
 SERVER="localhost"
 PORT=6669
-CHANNEL="#Room"
-CLIENT_COUNT=500
+CHANNEL="#room1"
+CLIENT_COUNT=100
 PASS="pass"
 
 # Function to clean up background processes
@@ -27,7 +27,7 @@ do
     sleep 0.25
     echo "USER ${i} 0 * *"
     sleep 0.25
-    echo "JOIN $CHANNEL"
+    echo "JOIN $CHANNEL,#room2"
     sleep 500
     ) | nc $SERVER $PORT &
     
