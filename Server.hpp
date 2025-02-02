@@ -46,6 +46,7 @@ public:
     ~Server();
     void run();
     void startServer();
+    void launchBOT(struct sockaddr_in &server_addr);
     void handleNewClient();
     void handleClientRequest(int client_fd);
     void removeClient(int client_fd);
