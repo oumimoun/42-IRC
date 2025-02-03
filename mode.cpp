@@ -60,7 +60,7 @@ std::vector<std::string> parseModes(const std::string &modes, Client &currClient
         else
         {
             sendReply(currClient.getClientFd(), ERR_UNKNOWNMODE(currClient.getHostName(), currClient.getNickname(), modes[i]));
-            return std::vector<std::string>();
+            // return std::vector<std::string>();
         }
     }
     return result;
@@ -221,8 +221,8 @@ void Server::channelMode(Client &currClient, std::vector<std::string> command)
     std::vector<std::string> modes;
     if (command.size() >= 3)
         modes = parseModes(command[2], currClient);
-    if (modes.empty())
-        return;
+    // if (modes.empty())
+    //     return;
     
     std::vector<std::string> parameters = parseParametres(command);
 
@@ -256,11 +256,6 @@ void Server::channelMode(Client &currClient, std::vector<std::string> command)
         else if (modes[i] == "+t" || modes[i] == "-t")
         {
             tModeParam(currChannel, modes[i], currClient);
-        }
-        else
-        {
-            sendReply(currClient.getClientFd(), ERR_UNKNOWNMODE(currClient.getHostName(), modes[i], "MODE"));
-            return;
         }
     }
 }

@@ -59,6 +59,7 @@ void Server::cleanup()
         close(_server_fd);
 
     _clients.clear();
+    _channels.clear();
 }
 
 void Server::run()
