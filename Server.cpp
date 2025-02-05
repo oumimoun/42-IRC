@@ -74,10 +74,11 @@ void Server::run()
             std::cerr << "Poll failed" << std::endl;
             continue;
         }
-
         if (fds[0].revents & POLLIN)
+        {
             handleNewClient();
-
+            continue;
+        }
         for (int i = 1; i < _client_count; i++)
         {
             if (fds[i].revents & POLLIN)
@@ -90,7 +91,6 @@ void Server::startServer()
 {
     struct sockaddr_in server_addr;
     _server_fd = socket(AF_INET, SOCK_STREAM, 0);
-    // std::cerr << "Server's fd :" << _server_fd << std::endl;
     if (_server_fd < 0)
         throw std::runtime_error("Failed to open socket");
 
@@ -179,20 +179,11 @@ void Server::handleClientRequest(int client_fd)
     char buffer[BUFFER_SIZE];
     int bytes_read = recv(client_fd, buffer, BUFFER_SIZE, 0);
 
-    if (bytes_read == 0)
+    if (bytes_read <= 0)
     {
         std::cout << "Client disconnected." << std::endl;
         this->removeClient(client_fd);
         return;
-    }
-    else if (bytes_read < 0)
-    {
-        if (errno != EAGAIN && errno != EWOULDBLOCK)
-        {
-            this->removeClient(client_fd);
-            std::cerr << "Error receiving data from client" << std::endl;
-            return;
-        }
     }
     else
     {

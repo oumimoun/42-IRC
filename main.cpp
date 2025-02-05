@@ -1,6 +1,5 @@
 
 #include "Server.hpp"
-
 std::pair<int, std::string> parse_args(char **av)
 {
     std::pair<int, std::string> params;
@@ -46,15 +45,14 @@ std::pair<int, std::string> parse_args(char **av)
 
 int main(int ac, char **av)
 {
+    signal(SIGPIPE, SIG_IGN);
     if (ac != 3)
     {
         std::cerr << "Usage: ./ircserv <port> <password>" << std::endl;
         return 1;
     }
-
     try
     {
-        // Parse and validate arguments
         std::pair<int, std::string> params = parse_args(av);
         Server IRC(params.first, params.second);
         IRC.run();
