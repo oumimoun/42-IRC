@@ -30,7 +30,8 @@
 // Nickname-related errors
 #define ERR_NOSUCHNICK(hostname, nick, nick2) ":" + hostname + " 401 " + nick + " " + nick2 + " :No such nick\r\n"
 #define ERR_NONICKNAMEGIVEN(nick, hostname) ":" + hostname + " 431 " + nick + " :No nickname given !\r\n"
-#define ERR_NICKNAMEINUSE(nick, hostname) ":" + hostname + " 433 " + nick + " :Nickname is already in use !\r\n"
+#define ERR_NICKNAMEINUSE(nickname) ": 555 * " + nickname + " :Nickname already taken, please try again\r\n"
+#define ERR_ERRONEUSNICKNAME(nick, nickname, hostname) ":" + hostname + " 432 " + nick + " " + nickname + " :Erroneous nickname\r\n"
 
 // Registration and authentication errors
 #define ERR_PASSWDMISMATCH(nick, hostname) ":" + hostname + " 464 " + nick + " :Password incorrect !\r\n"
