@@ -42,9 +42,10 @@ void Server::NickCommand(int client_fd, std::vector<std::string> command)
 
     for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
     {
-        if (it->second.getNickname() == nickname || nickname == "~SECBOT")
+        if (it->second.getNickname() == nickname)
         {
-            sendReply(client_fd, ERR_NICKNAMEINUSE(currClient.getNickname(), nickname));
+            std::string custom_error_message = ": 555 * " + nickname + " :Nickname already taken, please try again\r\n";
+            sendReply(client_fd, custom_error_message);
             return;
         }
     }
