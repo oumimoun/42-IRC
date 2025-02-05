@@ -76,7 +76,7 @@ void Server::PrivMsgCommand(Client &client, std::vector<std::string> command, st
     for (size_t i = 0; i < target_list.size(); ++i)
     {
         std::string target = target_list[i];
-        if (target == "~SECBOT")
+        if (target == "SECBOT")
         {
             std::vector<std::string> bots_msg;
             bots_msg.push_back("SECBOT");

@@ -3,7 +3,7 @@
 
 void webPath(Client &client, int client_fd, std::string server_hostname)
 {
-    std::string sender = "~SECBOT";
+    std::string sender = "SECBOT";
 
     const char *messages[] = {
         "✦ SECBOT Web Application Security Learning Path ✦",
@@ -106,7 +106,7 @@ void webPath(Client &client, int client_fd, std::string server_hostname)
 
 void forPath(Client &client, int client_fd, std::string server_hostname)
 {
-    std::string sender = "~SECBOT";
+    std::string sender = "SECBOT";
 
     const char *messages[] = {
         "✦ SECBOT Digital Forensics & Incident Response Path ✦",
@@ -218,7 +218,7 @@ void forPath(Client &client, int client_fd, std::string server_hostname)
 
 void pwnPath(Client client, int client_fd, std::string server_hostname)
 {
-    std::string sender = "~SECBOT";
+    std::string sender = "SECBOT";
 
     const char *messages[] = {
         "✦ SECBOT Binary Exploitation & Reverse Engineering Path ✦",
@@ -309,7 +309,7 @@ void pwnPath(Client client, int client_fd, std::string server_hostname)
 
 void windowsPentestPath(Client &client, int client_fd, std::string server_hostname)
 {
-    std::string sender = "~SECBOT";
+    std::string sender = "SECBOT";
     const char *messages[] = {
         "✦ SECBOT Windows Penetration Testing Learning Path ✦",
         "",
@@ -384,7 +384,7 @@ void windowsPentestPath(Client &client, int client_fd, std::string server_hostna
 }
 void defaultAnswer(Client &client, int client_fd, std::string server_hostname)
 {
-    std::string sender = "~SECBOT";
+    std::string sender = "SECBOT";
     const char *messages[] = {
         "✦ Welcome to SECBOT - Your Security Learning Assistant! ✦",
         "【Available Learning Paths】",
@@ -423,7 +423,7 @@ void defaultAnswer(Client &client, int client_fd, std::string server_hostname)
 void Server::BotCommand(int client_fd, std::vector<std::string> command)
 {
     Client &currClient = _clients[client_fd];
-    std::string sender = "~SECBOT";
+    std::string sender = "SECBOT";
     if (command.size() < 2)
     {
         const char *messages[] = {

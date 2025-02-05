@@ -157,7 +157,7 @@ void Server::launchBOT(struct sockaddr_in &server_addr)
 
     NonBlockingSocket bot_socket(bot_fd);
     Client botClient(bot_fd);
-    botClient.setNickname("~SECBOT");
+    botClient.setNickname("SECBOT");
     botClient.setUsername("SECBOT");
     botClient.setServername("SECBOT");
     botClient.setAdresseIp(_hostname);
