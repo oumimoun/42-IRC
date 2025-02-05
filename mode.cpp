@@ -1,10 +1,5 @@
 #include "Server.hpp"
 
-bool isValidMode(char c)
-{
-    return (c == 'i' || c == 't' || c == 'k' || c == 'o' || c == 'l');
-}
-
 int ft_atoi(std::string parameter)
 {
     size_t i = 0;
@@ -45,8 +40,9 @@ bool isValidNumber(const std::string &number)
     return true;
 }
 
-std::vector<std::string> parseModes(const std::string &modes, Client &currClient)
+std::vector<std::string> parseModes(const std::string &modes)
 {
+    
     std::vector<std::string> result;
     bool give = true;
     for (size_t i = 0; i < modes.size(); i++)
@@ -55,33 +51,35 @@ std::vector<std::string> parseModes(const std::string &modes, Client &currClient
             give = true;
         else if (modes[i] == '-')
             give = false;
-        else if (isValidMode(modes[i]))
-            result.push_back((give ? "+" : "-") + std::string(1, modes[i]));
         else
-        {
-            sendReply(currClient.getClientFd(), ERR_UNKNOWNMODE(currClient.getHostName(), currClient.getNickname(), modes[i]));
-            // return std::vector<std::string>();
-        }
+            result.push_back((give ? "+" : "-") + std::string(1, modes[i]));
     }
     return result;
 }
 
-std::vector<std::string> parseParametres(std::vector<std::string> command)
+std::vector<std::string> parseParametres(std::vector<std::string> command, std::vector<std::string> modes)
 {
     std::vector<std::string> result;
-    if (command.size() > 3)
-        for (size_t i = 3; i < command.size(); i++)
-            result.push_back(command[i]);
+    size_t paramIndex = 3;
+
+    for (size_t i = 0; i < modes.size(); i++)
+    {
+        if (modes[i] == "+o" || modes[i] == "-o" || modes[i] == "+l" || modes[i] == "+k")
+        {
+            if (paramIndex < command.size())
+                result.push_back(command[paramIndex++]);
+            else
+                result.push_back("");
+        }
+    }
+
     return result;
 }
 
 void Server::oModeParam(Channel &currChannel, std::string &parameter, std::string &mode, Client &currClient)
 {
     if (parameter.empty())
-    {
-        sendChannelInfo(currClient, currChannel);
         return;
-    }
 
     std::map<int, Client>::iterator it = _clients.find(getClientFdByName(parameter));
     if (it == _clients.end() || !it->second.isFullyAuthenticated())
@@ -122,10 +120,7 @@ void Server::iModeParam(Channel &currChannel, const std::string &mode, Client &c
 void Server::pluskModeParam(Channel &currChannel, const std::string &parameter, Client &currClient)
 {
     if (parameter.empty())
-    {
-        sendChannelInfo(currClient, currChannel);
         return;
-    }
 
     currChannel.setKey(parameter);
     broadcastModeChange(currClient, currChannel, "+k", parameter);
@@ -139,7 +134,10 @@ void Server::minuskModeParam(Channel &currChannel, Client &currClient)
 
 void Server::pluslModeParam(Channel &currChannel, const std::string &parameter, Client &currClient)
 {
-    if (parameter.empty() || !isValidNumber(parameter))
+    if (parameter.empty())
+        return;
+
+    if (!isValidNumber(parameter))
     {
         sendReply(currClient.getClientFd(), ERR_INVALIDMODEPARAM(currClient.getNickname(), currChannel.getName(), "+l"));
         return;
@@ -188,6 +186,29 @@ int Server::getClientFdByName(const std::string &nickname)
     return -1;
 }
 
+bool allParamEmpty(std::vector<std::string> parameters, std::vector<std::string> modes)
+{
+    size_t paramCount = 0;
+    for (size_t i = 0; i < modes.size(); i++)
+    {
+        if (modes[i] == "+o" || modes[i] == "-o" || modes[i] == "+l" || modes[i] == "+k")
+            paramCount++;
+    }
+    if (paramCount != 0)
+    {
+        size_t total = 0;
+        for (size_t i = 0; i < paramCount; i++)
+        {
+            if (parameters[i] == "")
+                total++;
+        }
+        if (total == paramCount)
+            return true;
+    }
+
+    return false;
+}
+
 void Server::channelMode(Client &currClient, std::vector<std::string> command)
 {
     if (command.size() < 2)
@@ -220,16 +241,23 @@ void Server::channelMode(Client &currClient, std::vector<std::string> command)
 
     std::vector<std::string> modes;
     if (command.size() >= 3)
-        modes = parseModes(command[2], currClient);
-    // if (modes.empty())
-    //     return;
+    {
+        if (command[2][0] != '+' && command[2][0] != '-')
+            return;
+        modes = parseModes(command[2]);
+    }
     
-    std::vector<std::string> parameters = parseParametres(command);
+    std::vector<std::string> parameters = parseParametres(command, modes);
+    if (allParamEmpty(parameters, modes))
+    {
+        sendChannelInfo(currClient, currChannel);
+        return;
+    }
 
     int paramCount = 0;
     for (size_t i = 0; i < modes.size(); i++)
     {
-        if ((modes[i] == "+o" || modes[i] == "-o") && paramCount < (int)parameters.size())
+        if ((modes[i] == "+o" || modes[i] == "-o"))
         {
             oModeParam(currChannel, parameters[paramCount++], modes[i], currClient);
         }
@@ -237,7 +265,7 @@ void Server::channelMode(Client &currClient, std::vector<std::string> command)
         {
             iModeParam(currChannel, modes[i], currClient);
         }
-        else if (modes[i] == "+k" && paramCount < (int)parameters.size())
+        else if (modes[i] == "+k")
         {
             pluskModeParam(currChannel, parameters[paramCount++], currClient);
         }
@@ -245,7 +273,7 @@ void Server::channelMode(Client &currClient, std::vector<std::string> command)
         {
             minuskModeParam(currChannel, currClient);
         }
-        else if (modes[i] == "+l" && paramCount < (int)parameters.size())
+        else if (modes[i] == "+l")
         {
             pluslModeParam(currChannel, parameters[paramCount++], currClient);
         }
@@ -256,6 +284,10 @@ void Server::channelMode(Client &currClient, std::vector<std::string> command)
         else if (modes[i] == "+t" || modes[i] == "-t")
         {
             tModeParam(currChannel, modes[i], currClient);
+        }
+        else
+        {
+            sendReply(currClient.getClientFd(), ERR_UNKNOWNMODE(currClient.getHostName(), currClient.getNickname(), modes[i]));
         }
     }
 }

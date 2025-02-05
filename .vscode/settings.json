@@ -64,5 +64,6 @@
         "unordered_map": "cpp",
         "utility": "cpp",
         "iomanip": "cpp"
-    }
+    },
+    "makefile.configureOnOpen": false
 }
