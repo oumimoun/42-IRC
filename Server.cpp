@@ -194,6 +194,7 @@ void Server::handleClientRequest(int client_fd)
 
         Client &currClient = _clients[client_fd];
         currClient._buffer.append(buffer, bytes_read);
+        currClient._buffer.erase(std::remove(currClient._buffer.begin(), currClient._buffer.end(), '\x04'), currClient._buffer.end());
 
         size_t pos;
 
