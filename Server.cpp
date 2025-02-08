@@ -71,7 +71,6 @@ void Server::run()
         int poll_count = poll(fds, _client_count, -1);
         if (poll_count < 0)
         {
-            std::cerr << "Poll failed" << std::endl;
             continue;
         }
         if (fds[0].revents & POLLIN)
@@ -121,7 +120,6 @@ void Server::handleNewClient()
     int client_fd = accept(_server_fd, (struct sockaddr *)&client_addr, &client_len);
     if (client_fd < 0)
     {
-        std::cerr << "Failed to accept client" << std::endl;
         return;
     }
     NonBlockingSocket client_socket(client_fd);
@@ -134,7 +132,6 @@ void Server::handleNewClient()
 
     fds[_client_count].fd = client_fd;
     fds[_client_count].events = POLLIN;
-
     _client_count++;
 }
 
@@ -144,13 +141,11 @@ void Server::launchBOT(struct sockaddr_in &server_addr)
 
     if (bot_fd < 0)
     {
-        std::cerr << "Failed to create bot socket" << std::endl;
         return;
     }
 
     if (connect(bot_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
     {
-        std::cerr << "Failed to connect bot to server" << std::endl;
         close(bot_fd);
         return;
     }
@@ -171,7 +166,6 @@ void Server::launchBOT(struct sockaddr_in &server_addr)
     fds[_client_count].events = POLLIN;
     _client_count++;
 
-    // std::cerr << "Bot connected to server with fd: " << bot_fd << std::endl;
 }
 
 void Server::handleClientRequest(int client_fd)
@@ -208,7 +202,8 @@ void Server::handleClientRequest(int client_fd)
             std::vector<std::string> command = split(trimString(command_str), ' ');
             if (command.size() < 1)
                 continue;
-            std::cout << "Received: " << command_str;
+
+            std::cout << GREEN << "Received: " << RESET << command_str;
 
             if (command[0] == "PASS")
                 PassCommand(client_fd, command);
@@ -236,8 +231,9 @@ void Server::handleClientRequest(int client_fd)
         }
     }
 }
+
 void sendReply(int client_fd, std::string response)
 {
     if (send(client_fd, response.c_str(), response.length(), 0) == -1)
-        std::cerr << "Error: send() failed" << std::endl;
+        return;
 }

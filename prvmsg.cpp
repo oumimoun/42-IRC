@@ -36,7 +36,6 @@ void Server::broadcastToChannel(Client &client, const std::string &channel_name,
             std::map<int, Client>::iterator target_client = _clients.find(*it);
             if (target_client != _clients.end())
             {
-                // std::string formatted_msg = PRIVMSG_FORMAT(client.getNickname(), client.getUsername(), client.getHostName(), target_client->second.getNickname(), message);
                 sendReply(target_client->second.getClientFd(), formatted_msg);
             }
         }

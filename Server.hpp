@@ -24,6 +24,8 @@
 #include "Channel.hpp"
 #include "numericReplies.hpp"
 #define BUFFER_SIZE 512
+#define GREEN "\033[1;32m"
+#define RESET "\033[0m"
 
 class Channel;
 class Client;
@@ -86,6 +88,5 @@ public:
 };
 
 void sendReply(int client_fd, std::string response);
-// void sendWelcomeMessages(int client_fd, const Client &client);
 
 #endif

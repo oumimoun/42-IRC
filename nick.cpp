@@ -41,8 +41,6 @@ void Server::NickCommand(int client_fd, std::vector<std::string> command)
     {
         if (it->second.getNickname() == nickname)
         {
-            // std::string custom_error_message = ": 555 * " + nickname + " :Nickname already taken, please try again\r\n";
-            // sendReply(client_fd, custom_error_message);
             sendReply(client_fd, ERR_NICKNAMEINUSE(nickname));
             return;
         }
